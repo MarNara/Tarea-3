@@ -5,10 +5,10 @@
 #include <string.h>
 
 /**
- * Carga canciones desde un archivo CSV
+ * Carga datos para el grafo desde un archivo CSV
  */
 void leer_escenarios() {
-  // Intenta abrir el archivo CSV que contiene datos de películas
+  // Intenta abrir el archivo CSV que contiene datos de el grafo
   FILE *archivo = fopen("data/graphquest.csv", "r");
   if (archivo == NULL) {
     perror(
@@ -71,3 +71,4 @@ int main() {
 
   return 0;
 }
+
