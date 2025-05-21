@@ -141,7 +141,7 @@ int main() {
                         
                         
                     }
-                    break;
+                break;
             case 0:
                 printf("Saliendo del juego. ¡Hasta luego!\n");
                 break;
