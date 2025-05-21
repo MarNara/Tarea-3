@@ -3,8 +3,12 @@
 #include "tdas/list.h"
 #include "tdas/heap.h"
 #include "tdas/extra.h"
+#include "tdas/map.h"
 #include <string.h>
 
+int comparar_claves(void* a, void* b) {
+    return strcmp((char*)a, (char*)b);
+}
 // Definición de la estructura para el estado del puzzle
 typedef struct {
     int square[3][3]; // Matriz 3x3 que representa el tablero
@@ -14,65 +18,90 @@ typedef struct {
 } State;
 
 typedef struct{
-}datosJuego;
-void leer_escenarios() {
+    char id[100];
+    char nombre[100];
+    char descripcion[1000];
+    List* items;
+    int arriba;
+    int abajo;
+    int izquierda;
+    int derecha; 
+    char esFinal[100];
+} Juego;
+
+typedef struct{
+    char nombre[100];
+    int valor;
+    int peso;
+}listaItems;
+
+typedef struct{
+    int tiempo;
+    List* inventario; 
+} Jugador;
+
+void leer_escenarios(Map * esce_ID, List* lista_items) {
   // Intenta abrir el archivo CSV que contiene datos de el grafo
-  FILE *archivo = fopen("graphquest.csv", "r");
-  if (archivo == NULL) {
-    perror(
-        "Error al abrir el archivo"); // Informa si el archivo no puede abrirse
-    return;
-  }
-
-  char **campos;
-  // Leer y parsear una línea del archivo CSV. La función devuelve un array de
-  // strings, donde cada elemento representa un campo de la línea CSV procesada.
-  campos = leer_linea_csv(archivo, ','); // Lee los encabezados del CSV
-
-
-  // Lee cada línea del archivo CSV hasta el final
-  while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
-    /*printf("ID: %d\n", atoi(campos[0]));
-    printf("Nombre: %s\n", campos[1]);
-    printf("Descripción: %s\n", campos[2]);
-    */
-    List* items = split_string(campos[3], ";");
-
-    //printf("Items: \n");
-    for(char *item = list_first(items); item != NULL; 
-          item = list_next(items)){
-
-        List* values = split_string(item, ",");
-        char* item_name = list_first(values);
-        int item_value = atoi(list_next(values));
-        int item_weight = atoi(list_next(values));
-        //printf("  - %s (%d pts, %d kg)\n", item_name, item_value, item_weight);
-        list_clean(values);
-        free(values);
+    FILE *archivo = fopen("graphquest.csv", "r");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo"); // Informa si el archivo no puede abrirse
+        return;
     }
 
-    int arriba = atoi(campos[4]);
-    int abajo = atoi(campos[5]);
-    int izquierda = atoi(campos[6]);
-    int derecha = atoi(campos[7]);
-
-    if (arriba != -1); //printf("Arriba: %d\n", arriba);
-    if (abajo != -1); //printf("Abajo: %d\n", abajo);
-    if (izquierda != -1); //printf("Izquierda: %d\n", izquierda);
-    if (derecha != -1); //printf("Derecha: %d\n", derecha);
-
     
-    int is_final = atoi(campos[8]);
-    if (is_final) printf("Es final\n");
+    char **campos;
+  // Lee cada línea del archivo CSV hasta el final
+    while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
 
-    list_clean(items);
-    free(items);
-    
-  }
-  printf("El archivo ha sido cargado correctamente\n");
-  fclose(archivo); // Cierra el archivo después de leer todas las líneas
-  presioneTeclaParaContinuar();
+    //printf("Items: \n");
+    //crear la lista de items con peso y valor para mostrar en el main
+        Juego* escenarios = (Juego *)malloc(sizeof(Juego));
+        if (escenarios== NULL) EXIT_FAILURE;
+
+        strncpy(escenarios->id, campos[0], sizeof(escenarios->id) - 1);
+        strncpy(escenarios->nombre, campos[1], sizeof(escenarios->nombre) - 1);
+        strncpy(escenarios->descripcion, campos[2], sizeof(escenarios->descripcion) - 1);
+        //crear la lista de los items, por peso valor y asi
+        escenarios->items = list_create();
+
+        List* items_string = split_string(campos[3], ";");
+
+        for(char *item = list_first(items_string); item != NULL; 
+            item = list_next(items_string)){
+
+            List* values = split_string(item, ",");
+            char* item_name = list_first(values);
+            int item_value = atoi(list_next(values));
+            int item_weight = atoi(list_next(values));
+            
+            listaItems* listItems_struct =  malloc(sizeof(listaItems));
+            strcpy(listItems_struct->nombre, item_name);
+            listItems_struct->valor = item_value;
+            listItems_struct->peso = item_weight;
+
+            //agregar los items separados a la lista de items de escenarios del laberinto
+            list_pushBack(lista_items, listItems_struct);
+            list_clean(values);
+            free(values);
+        }
+
+
+
+        escenarios->arriba = atoi(campos[4]);
+        escenarios->abajo = atoi(campos[4]);
+        escenarios->izquierda = atoi(campos[4]);
+        escenarios->derecha = atoi(campos[4]);
+        strncpy(escenarios->esFinal, campos[8], sizeof(escenarios->esFinal) - 1);
+
+        map_insert(esce_ID, escenarios->id, escenarios);
+
+    }
+        
+    printf("El archivo ha sido cargado correctamente\n");
+    fclose(archivo); // Cierra el archivo después de leer todas las líneas
+    presioneTeclaParaContinuar();
 }
+
 
 
 int distancia_L1(State* state) {
@@ -103,12 +132,16 @@ void imprimirEstado(const State *estado) {
     }
 }
 
+void mostrar_escenario_actual();
 
 int main() {
     int opcion;
     int archivo_cargado = 0;
-
+    Map* esce_ID = map_create(comparar_claves);
+    List* lista_items = list_create();
+    Map* inventarioJugador = map_create(comparar_claves);
     do {
+        limpiarPantalla();
         printf("\n===== MENU PRINCIPAL =====\n");
         printf("1. Cargar Laberinto desde Archivo CSV\n");
         printf("2. Iniciar Partida\n");
@@ -121,7 +154,7 @@ int main() {
             case 1:
                 limpiarPantalla();
                 printf("\n--- Cargando laberinto desde archivo CSV ---\n");
-                leer_escenarios(); // Solo imprime por ahora
+                leer_escenarios(esce_ID, lista_items); // Solo imprime por ahora
                 archivo_cargado = 1;
                 break;
 
@@ -131,40 +164,7 @@ int main() {
                     printf("¡Debes cargar el archivo CSV antes de comenzar la partida!\n");
                 } else {
                     printf("Iniciando partida...\n");
-                    // Estado inicial del puzzle
-                    State estado_inicial = {
-                    {{0, 2, 8}, // Primera fila (0 representa espacio vacío)
-                    {1, 3, 4}, // Segunda fila
-                    {6, 5, 7}, // Tercera fila
-                    },  
-                    0, 1   // Posición del espacio vacío (fila 0, columna 1)
-                    };
-                    estado_inicial.actions = list_create();
-
-                    // Imprime el estado inicial
-                    printf("Estado inicial del puzzle:\n");
-                    imprimirEstado(&estado_inicial);
-
-                    printf("Distancia L1:%d\n", distancia_L1(&estado_inicial));
-
-                    //Ejemplo de heap (cola con prioridad)
-                    printf("\n***** EJEMPLO USO DE HEAP ******\nCreamos un Heap e insertamos 3 elementos con distinta prioridad\n");
-                    Heap* heap = heap_create();
-                    char* data = strdup("Cinco");
-                    printf("Insertamos el elemento %s con prioridad -5\n", data);
-                    heap_push(heap, data, -5 /*prioridad*/);
-                    data = strdup("Seis");
-                    printf("Insertamos el elemento %s con prioridad -6\n", data);
-                    heap_push(heap, data, -6 /*prioridad*/);
-                    data = strdup("Siete");
-                    printf("Insertamos el elemento %s con prioridad -7\n", data);
-                    heap_push(heap, data, -7 /*prioridad*/);
-
-                    printf("\nLos elementos salen del Heap ordenados de mayor a menor prioridad\n");
-                    while (heap_top(heap) != NULL){
-                        printf("Top: %s\n", (char*) heap_top(heap));      
-                        heap_pop(heap);
-                    }
+                
                     printf("No hay más elementos en el Heap\n");
 
                     char opcion2;
@@ -185,7 +185,7 @@ int main() {
     
                         switch (opcion2) {
                         case '1':
-                            //dfs(estado_inicial);
+                            //recogerItems(esce_ID, lista_items);
                             break;
                         case '2':
                             //bfs(estado_inicial);

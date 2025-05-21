@@ -14,7 +14,23 @@ typedef struct {
 } State;
 
 typedef struct{
-}datosJuego;
+    int id;
+    char nombre[100];
+    char descripcion[1000];
+    List* items;
+    int arriba;
+    int abajo;
+    int izquierda;
+    int derecha; 
+    char esFinal[100];
+} Juego;
+
+typedef struct{
+    int tiempo;
+    List* inventario; 
+
+} Jugador;
+
 void leer_escenarios() {
   // Intenta abrir el archivo CSV que contiene datos de el grafo
   FILE *archivo = fopen("graphquest.csv", "r");
@@ -39,6 +55,7 @@ void leer_escenarios() {
     List* items = split_string(campos[3], ";");
 
     //printf("Items: \n");
+    //crear la lista de items con peso y valor para mostrar en el main
     for(char *item = list_first(items); item != NULL; 
           item = list_next(items)){
 
@@ -56,10 +73,10 @@ void leer_escenarios() {
     int izquierda = atoi(campos[6]);
     int derecha = atoi(campos[7]);
 
-    if (arriba != -1); //printf("Arriba: %d\n", arriba);
-    if (abajo != -1); //printf("Abajo: %d\n", abajo);
-    if (izquierda != -1); //printf("Izquierda: %d\n", izquierda);
-    if (derecha != -1); //printf("Derecha: %d\n", derecha);
+    if (arriba != -1); //printf("Arriba: %d\n", arriba)
+    if (abajo != -1); //printf("Abajo: %d\n", abajo)
+    if (izquierda != -1); //printf("Izquierda: %d\n", izquierda)
+    if (derecha != -1); //printf("Derecha: %d\n", derecha)
 
     
     int is_final = atoi(campos[8]);
@@ -103,6 +120,7 @@ void imprimirEstado(const State *estado) {
     }
 }
 
+void mostrar_escenario_actual();
 
 int main() {
     int opcion;
