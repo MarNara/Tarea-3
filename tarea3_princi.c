@@ -43,7 +43,7 @@ void imprimirEstado(const State *estado) {
 
 void leer_escenarios() {
   // Intenta abrir el archivo CSV que contiene datos de el grafo
-  FILE *archivo = fopen("data/graphquest.csv", "r");
+  FILE *archivo = fopen("graphquest.csv", "r");
   if (archivo == NULL) {
     perror(
         "Error al abrir el archivo"); // Informa si el archivo no puede abrirse
@@ -58,13 +58,13 @@ void leer_escenarios() {
 
   // Lee cada línea del archivo CSV hasta el final
   while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
-    printf("ID: %d\n", atoi(campos[0]));
+    /*printf("ID: %d\n", atoi(campos[0]));
     printf("Nombre: %s\n", campos[1]);
     printf("Descripción: %s\n", campos[2]);
-
+    */
     List* items = split_string(campos[3], ";");
 
-    printf("Items: \n");
+    //printf("Items: \n");
     for(char *item = list_first(items); item != NULL; 
           item = list_next(items)){
 
@@ -72,7 +72,7 @@ void leer_escenarios() {
         char* item_name = list_first(values);
         int item_value = atoi(list_next(values));
         int item_weight = atoi(list_next(values));
-        printf("  - %s (%d pts, %d kg)\n", item_name, item_value, item_weight);
+        //printf("  - %s (%d pts, %d kg)\n", item_name, item_value, item_weight);
         list_clean(values);
         free(values);
     }
@@ -82,10 +82,10 @@ void leer_escenarios() {
     int izquierda = atoi(campos[6]);
     int derecha = atoi(campos[7]);
 
-    if (arriba != -1) printf("Arriba: %d\n", arriba);
-    if (abajo != -1) printf("Abajo: %d\n", abajo);
-    if (izquierda != -1) printf("Izquierda: %d\n", izquierda);
-    if (derecha != -1) printf("Derecha: %d\n", derecha);
+    if (arriba != -1); //printf("Arriba: %d\n", arriba);
+    if (abajo != -1); //printf("Abajo: %d\n", abajo);
+    if (izquierda != -1); //printf("Izquierda: %d\n", izquierda);
+    if (derecha != -1); //printf("Derecha: %d\n", derecha);
 
     
     int is_final = atoi(campos[8]);
@@ -95,6 +95,7 @@ void leer_escenarios() {
     free(items);
     
   }
+  printf("El archivo ha sido cargado correctamente\n");
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
   presioneTeclaParaContinuar();
 }
@@ -115,16 +116,17 @@ int main() {
 
         switch (opcion) {
             case 1:
+                limpiarPantalla();
                 printf("\n--- Cargando laberinto desde archivo CSV ---\n");
                 leer_escenarios(); // Solo imprime por ahora
                 archivo_cargado = 1;
                 break;
 
             case 2:
+                limpiarPantalla();
                 if (!archivo_cargado) {
                     printf("¡Debes cargar el archivo CSV antes de comenzar la partida!\n");
                 } else {
-                    
                     printf("Iniciando partida...\n");
                     // Estado inicial del puzzle
                     State estado_inicial = {
