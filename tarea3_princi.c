@@ -112,7 +112,7 @@ int main() {
 
   return 0;
 }
-//gcc tdas/*.c tarea3.c -Wno-unused-result -o tarea3
-//./tarea3
+//gcc tdas/*.c tarea3_princi.c -Wno-unused-result -o tarea3_princi
+//./tarea3_princi
 
 //graphquest.csv
