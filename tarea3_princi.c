@@ -13,34 +13,8 @@ typedef struct {
     List* actions; //Secuencia de movimientos para llegar al estado
 } State;
 
-int distancia_L1(State* state) {
-    int ev=0;
-    int k=1;
-    for(int i=0;i<3;i++)
-        for(int j=0;j<3;j++){
-            int val=state->square[i][j];
-            if (val==0) continue;
-            int ii=(val)/3;
-            int jj=(val)%3;
-            ev+= abs(ii-i) + abs(jj-j);
-        }
-    return ev;
-}
-
-
-// Función para imprimir el estado del puzzle
-void imprimirEstado(const State *estado) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (estado->square[i][j] == 0)
-                printf("x "); // Imprime un espacio en blanco para el espacio vacío
-            else
-                printf("%d ", estado->square[i][j]);
-        }
-        printf("\n");
-    }
-}
-
+typedef struct{
+}datosJuego;
 void leer_escenarios() {
   // Intenta abrir el archivo CSV que contiene datos de el grafo
   FILE *archivo = fopen("graphquest.csv", "r");
@@ -98,6 +72,35 @@ void leer_escenarios() {
   printf("El archivo ha sido cargado correctamente\n");
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
   presioneTeclaParaContinuar();
+}
+
+
+int distancia_L1(State* state) {
+    int ev=0;
+    int k=1;
+    for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++){
+            int val=state->square[i][j];
+            if (val==0) continue;
+            int ii=(val)/3;
+            int jj=(val)%3;
+            ev+= abs(ii-i) + abs(jj-j);
+        }
+    return ev;
+}
+
+
+// Función para imprimir el estado del puzzle
+void imprimirEstado(const State *estado) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (estado->square[i][j] == 0)
+                printf("x "); // Imprime un espacio en blanco para el espacio vacío
+            else
+                printf("%d ", estado->square[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 
@@ -166,15 +169,16 @@ int main() {
 
                     char opcion2;
                     do {
-                        printf("\n***** EJEMPLO MENU ******\n");
+                        printf("\n***** MENÚ DEL JUEGO ******\n");
                         puts("========================================");
-                        puts("     Escoge método de búsqueda");
+                        puts("     Opciones del Jugador");
                         puts("========================================");
         
-                        puts("1) Búsqueda en Profundidad");
-                        puts("2) Buscar en Anchura");
-                        puts("3) Buscar Mejor Primero");
-                        puts("4) Salir");
+                        puts("1) Recoger Ítem(s)");
+                        puts("2) Descartar Ítem(s)");
+                        puts("3) Avanzar en una Dirección");
+                        puts("4) Reiniciar Partida");
+                        puts("5) Salir");
     
                         printf("Ingrese su opción: ");
                         scanf(" %c", &opcion2);
@@ -189,11 +193,14 @@ int main() {
                         case '3':
                             //best_first(estado_inicial);
                             break;
+                        case '4':
+                            //best_first(estado_inicial);
+                            break;
                         }
                         presioneTeclaParaContinuar();
                         limpiarPantalla();
 
-                        } while (opcion2 != '4'); 
+                        } while (opcion2 != '5'); 
                         break;
                         
                         
