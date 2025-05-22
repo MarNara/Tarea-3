@@ -193,7 +193,7 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID, List* lista_items){
     while(contenido_item != NULL){
         printf("ID: %s,  Item: %s,  Valor: %s,  Peso: %s\n",contenido_item->id, contenido_item->nombre, contenido_item->valor, contenido_item->peso);
         contenido_item = list_next(datos_jugador->actual->items);
-    }
+    } 
 
     /*falta agregar items y ver si lo agrego a mi inventario debo eliminarlo de el "juego"*/
 
