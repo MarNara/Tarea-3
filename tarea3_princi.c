@@ -6,16 +6,10 @@
 #include "tdas/map.h"
 #include <string.h>
 
-int comparar_claves(void* a, void* b) {
+int compararClaves_strcmp(void* a, void* b) {
     return strcmp((char*)a, (char*)b);
 }
-// Definición de la estructura para el estado del puzzle
-typedef struct {
-    int square[3][3]; // Matriz 3x3 que representa el tablero
-    int x;    // Posición x del espacio vacío
-    int y;    // Posición y del espacio vacío
-    List* actions; //Secuencia de movimientos para llegar al estado
-} State;
+
 
 typedef struct{
     char id[100];
@@ -37,7 +31,8 @@ typedef struct{
 
 typedef struct{
     int tiempo;
-    List* inventario; 
+    List* inventario;
+    Juego* actual;// en el que esta el jugador 
 } Jugador;
 
 void leer_escenarios(Map * esce_ID, List* lista_items) {
@@ -48,6 +43,7 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
         return;
     }
 
+    leer_linea_csv(archivo, ',');//saltarme la primera linea, eran los encabezados
     
     char **campos;
   // Lee cada línea del archivo CSV hasta el final
@@ -103,43 +99,61 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
 }
 
 
+void mostrar_escenario_actual(Jugador* datos_jugador){
+    puts("========================================");
+    puts("     Estado Actual");
+    puts("========================================");
+    
 
-int distancia_L1(State* state) {
-    int ev=0;
-    int k=1;
-    for(int i=0;i<3;i++)
-        for(int j=0;j<3;j++){
-            int val=state->square[i][j];
-            if (val==0) continue;
-            int ii=(val)/3;
-            int jj=(val)%3;
-            ev+= abs(ii-i) + abs(jj-j);
-        }
-    return ev;
-}
+    /*Organización: 1)imprimir la descripcion del escenario, para eso necesito el nombre.
 
+    2)luego debo mostrar la lista de items disponibles que tiene el escenario.
 
-// Función para imprimir el estado del puzzle
-void imprimirEstado(const State *estado) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (estado->square[i][j] == 0)
-                printf("x "); // Imprime un espacio en blanco para el espacio vacío
-            else
-                printf("%d ", estado->square[i][j]);
-        }
-        printf("\n");
+    3)despues debo mostrar el tiempo que le queda al jugador para hacer su proximo movimiento
+    (Esto se va actualizando solo??).
+     
+    4)Luego debo mostrar el inventario del jugador (ítems recogidos,
+     peso total y puntaje acumulado(el puntaje es la suma de los valores de los items??))
+     
+    5)Por ultimo mostrar las Acciones posibles desde este escenario: direcciones disponibles (arriba, abajo, izquierda, 
+     derecha).*/
+
+     //1)
+    printf("Nombre Escsenario: %s\n", datos_jugador->actual->nombre);
+    printf("Descripción Escsenario: %s\n", datos_jugador->actual->descripcion);
+
+    //2)
+    if(list_first(datos_jugador->actual->items) == NULL){
+        printf(" No a seleccionado ningún item\n");
     }
-}
+    else{
+        listaItems* contenido_item = list_first(datos_jugador->actual->items);
+        while(contenido_item != NULL){
+            printf("Item: %s, Valor: %s, Peso: %s\n", contenido_item->nombre, contenido_item->valor, contenido_item->peso);
+            contenido_item = list_next(datos_jugador->actual->items);
+        }
+    }
 
-void mostrar_escenario_actual();
+    //5)
+    if (datos_jugador->actual->arriba != -1) printf("Arriba: %d\n", datos_jugador->actual->arriba);
+    if (datos_jugador->actual->abajo != -1) printf("Abajo: %d\n", datos_jugador->actual->abajo);
+    if (datos_jugador->actual->izquierda != -1) printf("Izquierda: %d\n", datos_jugador->actual->izquierda);
+    if (datos_jugador->actual->derecha != -1) printf("Derecha: %d\n", datos_jugador->actual->derecha);
+
+}
 
 int main() {
     int opcion;
     int archivo_cargado = 0;
-    Map* esce_ID = map_create(comparar_claves);
+    //parametros para las funciones
+    Map* esce_ID = map_create(compararClaves_strcmp);
     List* lista_items = list_create();
-    Map* inventarioJugador = map_create(comparar_claves);
+    //datos del jugador
+    Jugador* datos_jugador = (Jugador*)malloc(sizeof(Jugador));
+    if(datos_jugador == NULL) EXIT_FAILURE;
+    datos_jugador->tiempo = 10;
+    datos_jugador->inventario = list_create();
+    
     do {
         limpiarPantalla();
         printf("\n===== MENU PRINCIPAL =====\n");
@@ -156,6 +170,17 @@ int main() {
                 printf("\n--- Cargando laberinto desde archivo CSV ---\n");
                 leer_escenarios(esce_ID, lista_items); // Solo imprime por ahora
                 archivo_cargado = 1;
+                //aqui puedo saber en que escenario está el jugador
+                MapPair* pair = map_search(esce_ID, " 1");//es el primer id, en caso de que este vacio, que es lo más probable porque esta empezando.
+                Juego* inicio = NULL;
+                if (pair != NULL){
+                    inicio = (Juego*)pair->value;
+                }
+                else{
+                    printf("No se encontro el escenario inicial\n");
+                    exit(EXIT_FAILURE);
+                }
+                datos_jugador->actual = inicio;
                 break;
 
             case 2:
@@ -164,8 +189,8 @@ int main() {
                     printf("¡Debes cargar el archivo CSV antes de comenzar la partida!\n");
                 } else {
                     printf("Iniciando partida...\n");
-                
-                    printf("No hay más elementos en el Heap\n");
+                    mostrar_escenario_actual(datos_jugador);//solo necesito los datos del jugador actualmente, no todos los datos :(
+                    printf("No hay más elementos en el estado actual\n");
 
                     char opcion2;
                     do {
@@ -185,16 +210,20 @@ int main() {
     
                         switch (opcion2) {
                         case '1':
-                            //recogerItems(esce_ID, lista_items);
+                            limpiarPantalla();
+                            //recoger_items(datos_jugador, esce_ID, lista_items);
                             break;
                         case '2':
-                            //bfs(estado_inicial);
+                            limpiarPantalla();
+                            //descartar_items(estado_inicial);
                             break;
                         case '3':
-                            //best_first(estado_inicial);
+                            limpiarPantalla();
+                            //avanzar_una_direccion(estado_inicial);
                             break;
                         case '4':
-                            //best_first(estado_inicial);
+                            limpiarPantalla();
+                            //reiniciar_partida(estado_inicial);
                             break;
                         }
                         presioneTeclaParaContinuar();
