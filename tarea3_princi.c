@@ -170,14 +170,15 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
     if (datos_jugador->actual->derecha != -1) printf("Derecha: %d\n", datos_jugador->actual->derecha);
 }
 
-void recoger_items(Jugador* datos_jugador, Map* esce_ID, List* lista_items){
+void recoger_items(Jugador* datos_jugador, Map* esce_ID){
     /*analisis:
     para recoger un item primero debo mostrarle al usuario el disponible en el escenario junto a su id
     y luego el usuario si lo desea debe colocar el numero del id para tomarlo.
     
     para realizar lo siguiente debo ingresar los items al inventario con list_pushback y si hay más de un item en el
-    escenario debo volver a preguntar al usuario si desea ingresar otro item, si es así debo devolver la función,
-     si no es así debo salir de la lista*/
+    escenario debo pedirle al ususario que separe los id por un espacio para agregarlos como en el leer el archivo con
+    List* items_string = split_string(campos[3], ";");, pero con especificaciones diferentes, ya que yo quiero separar el espacio:  
+    split_string(id_ingresadoPorJugador, " ");*/
     
     //recordar que si le coloco else puede no termin ar su ejecucion y darme error
     if(list_first(datos_jugador->actual->items) == NULL ){
@@ -195,8 +196,37 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID, List* lista_items){
         contenido_item = list_next(datos_jugador->actual->items);
     } 
 
-    /*falta agregar items y ver si lo agrego a mi inventario debo eliminarlo de el "juego"*/
+    /*falta agregar items y ver si lo agrego a mi inventario debo eliminarlo del "juego"*/
+    //preguntar al jugador
+    printf("Ingrese el/los id(s) que desea ingresar \n");
+    char id_ingresadoPorJugador[100];
+    getchar();
+    fgets(id_ingresadoPorJugador, sizeof(id_ingresadoPorJugador), stdin);
 
+    //separar los ids con la función del profe
+    List* lis_items_elegido = split_string(id_ingresadoPorJugador, " ");
+
+    //guardar los items en el inventario
+    List* new_list_items_escenario = list_create();
+    List* items_actuales = datos_jugador->actual->items;
+    listaItems* items = list_first(items_actuales);
+    while(items != NULL){
+        int item_tomado = 0;//actuar como false
+        char* id_ids = list_first(id_ingresadoPorJugador);//sacar id de a uno
+        while(id_ids != NULL){
+            if(strcmp(datos_jugador->actual->id, id_ids)){
+                list_pushBack(datos_jugador->inventario, id_ids);
+                item_tomado = 1;//actua como true
+            }
+            id_ids = list_next(id_ingresadoPorJugador);
+        
+        }
+        items = list_next(items_actuales);
+        if(item_tomado == 0){
+            list_pushBack(new_list_items_escenario, items);
+        }
+    }
+    
 
     
 }
@@ -270,7 +300,7 @@ int main() {
                         switch (opcion2) {
                         case '1':
                             limpiarPantalla();
-                            recoger_items(datos_jugador, esce_ID, lista_items);
+                            recoger_items(datos_jugador, esce_ID);
                             break;
                         case '2':
                             limpiarPantalla();
