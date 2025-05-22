@@ -28,12 +28,15 @@ typedef struct{
     char nombre[100];
     int valor;
     int peso;
+    
 }listaItems;
 
 typedef struct{
     int tiempo;
     List* inventario;
-    Juego* actual;// en el que esta el jugador 
+    Juego* actual;// en el que esta el jugador
+    int totalPeso;
+    int totalPuntaje; 
 } Jugador;
 
 void leer_escenarios(Map * esce_ID, List* lista_items) {
@@ -80,6 +83,7 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
 
             //agregar los items separados a la lista de items de escenarios del laberinto
             list_pushBack(lista_items, listItems_struct);
+            list_pushBack(escenarios->items, listItems_struct);
             list_clean(values);
             free(values);
         }
@@ -158,7 +162,12 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
         while(item_del_inventario != NULL){
             printf("Item: %s, Valor: %s, Peso: %s\n", item_del_inventario->nombre, item_del_inventario->valor, item_del_inventario->peso);
             item_del_inventario = list_next(datos_jugador->inventario);
+            datos_jugador->totalPuntaje += item_del_inventario->valor;
+            datos_jugador->totalPeso += item_del_inventario->peso;
         }
+        printf("Total peso: %d\n", datos_jugador->totalPeso);
+        printf("Puntaje obtenido: %d\n", datos_jugador->totalPuntaje);
+
         printf("\n");
     }
 
@@ -211,14 +220,15 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID){
     List* items_actuales = datos_jugador->actual->items;
     listaItems* items = list_first(items_actuales);
     while(items != NULL){
-        int item_tomado = 0;//actuar como false
-        char* id_ids = list_first(id_ingresadoPorJugador);//sacar id de a uno
+        int item_tomado = 0;//actua como false
+        char* id_ids = list_first(lis_items_elegido);//sacar id de a uno
         while(id_ids != NULL){
             if(strcmp(datos_jugador->actual->id, id_ids)){
                 list_pushBack(datos_jugador->inventario, id_ids);
                 item_tomado = 1;//actua como true
+                break;
             }
-            id_ids = list_next(id_ingresadoPorJugador);
+            id_ids = list_next(lis_items_elegido);
         
         }
         items = list_next(items_actuales);
@@ -226,9 +236,21 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID){
             list_pushBack(new_list_items_escenario, items);
         }
     }
+    //actualizar los items del juego, como el jugador toma uno, ese item desaparece de los items del juego
+    datos_jugador->actual->items = new_list_items_escenario;
+    datos_jugador->tiempo -= 1;
+
+    printf("item agregado al inventario: %s\n", datos_jugador->inventario);
+    printf("tiempo restante del jugador: %s\n", datos_jugador->tiempo);
+
     
 
     
+}
+
+void avanzar_una_direccion(Jugador* datos_jugador, Map* esce_ID){
+    /*mostrar las direcciones disponibles, preguntar al usuario si desea*/
+
 }
 
 int main() {
@@ -308,7 +330,7 @@ int main() {
                             break;
                         case '3':
                             limpiarPantalla();
-                            //avanzar_una_direccion(estado_inicial);
+                            avanzar_una_direccion(datos_jugador, esce_ID);
                             break;
                         case '4':
                             limpiarPantalla();
