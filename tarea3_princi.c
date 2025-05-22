@@ -24,6 +24,7 @@ typedef struct{
 } Juego;
 
 typedef struct{
+    char id[100];
     char nombre[100];
     int valor;
     int peso;
@@ -66,11 +67,13 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
             item = list_next(items_string)){
 
             List* values = split_string(item, ",");
-            char* item_name = list_first(values);
+            char* item_id = list_first(values);
+            char* item_name = list_next(values);
             int item_value = atoi(list_next(values));
             int item_weight = atoi(list_next(values));
             
             listaItems* listItems_struct =  malloc(sizeof(listaItems));
+            strcpy(listItems_struct->id, item_id);
             strcpy(listItems_struct->nombre, item_name);
             listItems_struct->valor = item_value;
             listItems_struct->peso = item_weight;
@@ -81,11 +84,6 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
             free(values);
         }
 
-/*
-    if (datos_jugador->actual->abajo != -1) printf("Abajo: %d\n", datos_jugador->actual->abajo);
-    if (datos_jugador->actual->izquierda != -1) printf("Izquierda: %d\n", datos_jugador->actual->izquierda);
-    if (datos_jugador->actual->derecha != -1) printf("Derecha: %d\n", datos_jugador->actual->derecha);*/
-
         escenarios->arriba = atoi(campos[4]); 
         escenarios->abajo = atoi(campos[5]);
         escenarios->izquierda = atoi(campos[6]);
@@ -93,10 +91,11 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
         strncpy(escenarios->esFinal, campos[8], sizeof(escenarios->esFinal) - 1);
 
         map_insert(esce_ID, escenarios->id, escenarios);
+        /*
         if (escenarios->arriba != -1) printf("Arriba: %d\n", escenarios->arriba);
         if (escenarios->abajo != -1) printf("Abajo: %d\n", escenarios->abajo);
         if (escenarios->izquierda != -1) printf("Izquierda: %d\n", escenarios->izquierda);
-        if (escenarios->derecha != -1) printf("Derecha: %d\n", escenarios->derecha);
+        if (escenarios->derecha != -1) printf("Derecha: %d\n", escenarios->derecha);*/
 
     }
     
@@ -127,12 +126,14 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
      derecha).*/
 
      //1)
-    printf("Nombre Escsenario: %s\n", datos_jugador->actual->nombre);
-    printf("Descripción Escsenario: %s\n", datos_jugador->actual->descripcion);
+    printf("Nombre Del Escenario: %s\n", datos_jugador->actual->nombre);
+    printf("Descripción Escenario: %s\n\n", datos_jugador->actual->descripcion);
 
     //2)
+    printf("------ Items disponibles de este escenario ------\n");
     if(list_first(datos_jugador->actual->items) == NULL){
-        printf("No a seleccionado ningún item\n");
+        printf("No hay items disponibles en este escenario\n");
+        printf("\n");
     }
     else{
         listaItems* contenido_item = list_first(datos_jugador->actual->items);
@@ -140,21 +141,25 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
             printf("Item: %s, Valor: %s, Peso: %s\n", contenido_item->nombre, contenido_item->valor, contenido_item->peso);
             contenido_item = list_next(datos_jugador->actual->items);
         }
+        printf("\n");
     }
 
     //3)
-    printf("Tiempo restantes: %d\n", datos_jugador->tiempo);
+    printf("Tiempo restantes: %d\n\n", datos_jugador->tiempo);
 
     //4)
+    printf("------ Items ingresados al inventario ------\n");
     listaItems* item_del_inventario = list_first(datos_jugador->inventario);
     if(item_del_inventario == NULL){
         printf("No has ingresado ningun item al inventario\n");
+        printf("\n");
     }
     else{
         while(item_del_inventario != NULL){
             printf("Item: %s, Valor: %s, Peso: %s\n", item_del_inventario->nombre, item_del_inventario->valor, item_del_inventario->peso);
             item_del_inventario = list_next(datos_jugador->inventario);
         }
+        printf("\n");
     }
 
     //5)
@@ -163,7 +168,37 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
     if (datos_jugador->actual->abajo != -1) printf("Abajo: %d\n", datos_jugador->actual->abajo);
     if (datos_jugador->actual->izquierda != -1) printf("Izquierda: %d\n", datos_jugador->actual->izquierda);
     if (datos_jugador->actual->derecha != -1) printf("Derecha: %d\n", datos_jugador->actual->derecha);
+}
 
+void recoger_items(Jugador* datos_jugador, Map* esce_ID, List* lista_items){
+    /*analisis:
+    para recoger un item primero debo mostrarle al usuario el disponible en el escenario junto a su id
+    y luego el usuario si lo desea debe colocar el numero del id para tomarlo.
+    
+    para realizar lo siguiente debo ingresar los items al inventario con list_pushback y si hay más de un item en el
+    escenario debo volver a preguntar al usuario si desea ingresar otro item, si es así debo devolver la función,
+     si no es así debo salir de la lista*/
+    
+    //recordar que si le coloco else puede no termin ar su ejecucion y darme error
+    if(list_first(datos_jugador->actual->items) == NULL ){
+        printf("No hay items disponibles en este escenario\n");
+        return;
+    }
+    
+    //mostrar los items disponibles
+    puts("========================================");
+    puts("     Item(s) disponibles");
+    puts("========================================");
+    listaItems* contenido_item = list_first(datos_jugador->actual->items);
+    while(contenido_item != NULL){
+        printf("ID: %s,  Item: %s,  Valor: %s,  Peso: %s\n",contenido_item->id, contenido_item->nombre, contenido_item->valor, contenido_item->peso);
+        contenido_item = list_next(datos_jugador->actual->items);
+    }
+
+    /*falta agregar items y ver si lo agrego a mi inventario debo eliminarlo de el "juego"*/
+
+
+    
 }
 
 int main() {
@@ -235,7 +270,7 @@ int main() {
                         switch (opcion2) {
                         case '1':
                             limpiarPantalla();
-                            //recoger_items(datos_jugador, esce_ID, lista_items);
+                            recoger_items(datos_jugador, esce_ID, lista_items);
                             break;
                         case '2':
                             limpiarPantalla();
