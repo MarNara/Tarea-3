@@ -81,17 +81,25 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
             free(values);
         }
 
+/*
+    if (datos_jugador->actual->abajo != -1) printf("Abajo: %d\n", datos_jugador->actual->abajo);
+    if (datos_jugador->actual->izquierda != -1) printf("Izquierda: %d\n", datos_jugador->actual->izquierda);
+    if (datos_jugador->actual->derecha != -1) printf("Derecha: %d\n", datos_jugador->actual->derecha);*/
 
-
-        escenarios->arriba = atoi(campos[4]);
-        escenarios->abajo = atoi(campos[4]);
-        escenarios->izquierda = atoi(campos[4]);
-        escenarios->derecha = atoi(campos[4]);
+        escenarios->arriba = atoi(campos[4]); 
+        escenarios->abajo = atoi(campos[5]);
+        escenarios->izquierda = atoi(campos[6]);
+        escenarios->derecha = atoi(campos[7]);
         strncpy(escenarios->esFinal, campos[8], sizeof(escenarios->esFinal) - 1);
 
         map_insert(esce_ID, escenarios->id, escenarios);
+        if (escenarios->arriba != -1) printf("Arriba: %d\n", escenarios->arriba);
+        if (escenarios->abajo != -1) printf("Abajo: %d\n", escenarios->abajo);
+        if (escenarios->izquierda != -1) printf("Izquierda: %d\n", escenarios->izquierda);
+        if (escenarios->derecha != -1) printf("Derecha: %d\n", escenarios->derecha);
 
     }
+    
         
     printf("El archivo ha sido cargado correctamente\n");
     fclose(archivo); // Cierra el archivo después de leer todas las líneas
@@ -113,7 +121,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
     (Esto se va actualizando solo??).
      
     4)Luego debo mostrar el inventario del jugador (ítems recogidos,
-     peso total y puntaje acumulado(el puntaje es la suma de los valores de los items??))
+     peso total(es tambien una suma??) y puntaje acumulado(el puntaje es la suma de los valores de los items??))
      
     5)Por ultimo mostrar las Acciones posibles desde este escenario: direcciones disponibles (arriba, abajo, izquierda, 
      derecha).*/
@@ -124,7 +132,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
 
     //2)
     if(list_first(datos_jugador->actual->items) == NULL){
-        printf(" No a seleccionado ningún item\n");
+        printf("No a seleccionado ningún item\n");
     }
     else{
         listaItems* contenido_item = list_first(datos_jugador->actual->items);
@@ -134,7 +142,23 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
         }
     }
 
+    //3)
+    printf("Tiempo restantes: %d\n", datos_jugador->tiempo);
+
+    //4)
+    listaItems* item_del_inventario = list_first(datos_jugador->inventario);
+    if(item_del_inventario == NULL){
+        printf("No has ingresado ningun item al inventario\n");
+    }
+    else{
+        while(item_del_inventario != NULL){
+            printf("Item: %s, Valor: %s, Peso: %s\n", item_del_inventario->nombre, item_del_inventario->valor, item_del_inventario->peso);
+            item_del_inventario = list_next(datos_jugador->inventario);
+        }
+    }
+
     //5)
+    printf("Acciones posibles desde este escenario:\n");
     if (datos_jugador->actual->arriba != -1) printf("Arriba: %d\n", datos_jugador->actual->arriba);
     if (datos_jugador->actual->abajo != -1) printf("Abajo: %d\n", datos_jugador->actual->abajo);
     if (datos_jugador->actual->izquierda != -1) printf("Izquierda: %d\n", datos_jugador->actual->izquierda);

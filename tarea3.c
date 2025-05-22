@@ -73,10 +73,10 @@ void leer_escenarios() {
     int izquierda = atoi(campos[6]);
     int derecha = atoi(campos[7]);
 
-    if (arriba != -1); //printf("Arriba: %d\n", arriba)
-    if (abajo != -1); //printf("Abajo: %d\n", abajo)
-    if (izquierda != -1); //printf("Izquierda: %d\n", izquierda)
-    if (derecha != -1); //printf("Derecha: %d\n", derecha)
+    if (arriba != -1) printf("Arriba: %d\n", arriba);
+    if (abajo != -1) printf("Abajo: %d\n", abajo);
+    if (izquierda != -1) printf("Izquierda: %d\n", izquierda);
+    if (derecha != -1) printf("Derecha: %d\n", derecha);
 
     
     int is_final = atoi(campos[8]);
