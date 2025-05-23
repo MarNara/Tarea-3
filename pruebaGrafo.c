@@ -34,7 +34,7 @@ typedef struct Nodo {
     List* items;
 } Nodo;
 
-// ------------------ CARGA DE ESCENARIOS ------------------
+
 
 void cargarEscenarios(const char* nombreArchivo, Map* mapaNodos, Nodo** nodoInicial) {
     FILE* archivo = fopen(nombreArchivo, "r");
@@ -138,7 +138,7 @@ void cargarEscenarios(const char* nombreArchivo, Map* mapaNodos, Nodo** nodoInic
 }
 
 
-// ------------------ MOSTRAR NODO ------------------
+
 
 void mostrarNodo(Nodo* nodo) {
     if (!nodo) return;
@@ -165,7 +165,7 @@ void mostrarNodo(Nodo* nodo) {
     printf("\n");
 }
 
-// ------------------ MAIN ------------------
+
 
 int main() {
     Map* mapaNodos = map_create(compararClaves_strcmp);
