@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "tdas/list.h"
 #include "tdas/heap.h"
 #include "tdas/extra.h"
@@ -57,11 +58,14 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
     //crear la lista de items con peso y valor para mostrar en el main
         Juego* escenarios = (Juego *)malloc(sizeof(Juego));
         if (escenarios== NULL) EXIT_FAILURE;
-
-        strncpy(escenarios->id, campos[0], sizeof(escenarios->id) - 1);
+        char id_limpio[100];
+        snprintf(id_limpio, sizeof(id_limpio), "%d", atoi(campos[0])); // Convierte " 1" a "1"
+    
+        strncpy(escenarios->id, id_limpio, sizeof(escenarios->id) - 1);
+        //strncpy(escenarios->id, trim(campos[0]), sizeof(escenarios->id) - 1);
         strncpy(escenarios->nombre, campos[1], sizeof(escenarios->nombre) - 1);
         strncpy(escenarios->descripcion, campos[2], sizeof(escenarios->descripcion) - 1);
-        //crear la lista de los items, por peso valor y asi
+        //crear la lista de  los items, por peso valor y asi
         escenarios->items = list_create();
 
         List* items_string = split_string(campos[3], ";");
@@ -109,7 +113,7 @@ void leer_escenarios(Map * esce_ID, List* lista_items) {
     presioneTeclaParaContinuar();
 }
 
-
+//mostraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar
 void mostrar_escenario_actual(Jugador* datos_jugador){
     puts("========================================");
     puts("     Estado Actual");
@@ -142,7 +146,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
     else{
         listaItems* contenido_item = list_first(datos_jugador->actual->items);
         while(contenido_item != NULL){
-            printf("Item: %s, Valor: %s, Peso: %s\n", contenido_item->nombre, contenido_item->valor, contenido_item->peso);
+            printf("Item: %s, Valor: %d, Peso: %d\n", contenido_item->nombre, contenido_item->valor, contenido_item->peso);
             contenido_item = list_next(datos_jugador->actual->items);
         }
         printf("\n");
@@ -159,6 +163,8 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
         printf("\n");
     }
     else{
+        datos_jugador->totalPuntaje = 0;
+        datos_jugador->totalPeso = 0;
         while(item_del_inventario != NULL){
             printf("Item: %s, Valor: %s, Peso: %s\n", item_del_inventario->nombre, item_del_inventario->valor, item_del_inventario->peso);
             item_del_inventario = list_next(datos_jugador->inventario);
@@ -172,11 +178,14 @@ void mostrar_escenario_actual(Jugador* datos_jugador){
     }
 
     //5)
-    printf("Acciones posibles desde este escenario:\n");
+    printf("Direcciones posibles desde este escenario:\n");
     if (datos_jugador->actual->arriba != -1) printf("Arriba: %d\n", datos_jugador->actual->arriba);
     if (datos_jugador->actual->abajo != -1) printf("Abajo: %d\n", datos_jugador->actual->abajo);
     if (datos_jugador->actual->izquierda != -1) printf("Izquierda: %d\n", datos_jugador->actual->izquierda);
     if (datos_jugador->actual->derecha != -1) printf("Derecha: %d\n", datos_jugador->actual->derecha);
+    if(datos_jugador->actual->arriba == -1 && datos_jugador->actual->abajo == -1 && datos_jugador->actual->izquierda == -1 && datos_jugador->actual->derecha == -1){
+        printf("No hay direcciones disponibles para este escenario\n");
+    }
 }
 
 void recoger_items(Jugador* datos_jugador, Map* esce_ID){
@@ -249,7 +258,131 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID){
 }
 
 void avanzar_una_direccion(Jugador* datos_jugador, Map* esce_ID){
+
+    // Mostrar direcciones disponibles
+    printf("\nDirecciones posibles desde '%s':\n", datos_jugador->actual->nombre);
+    if (datos_jugador->actual->arriba != -1) printf("(1) Arriba -> Escenario %d\n", datos_jugador->actual->arriba);
+    if (datos_jugador->actual->abajo != -1) printf("(2) Abajo -> Escenario %d\n", datos_jugador->actual->abajo);
+    if (datos_jugador->actual->izquierda != -1) printf("(3) Izquierda -> Escenario %d\n", datos_jugador->actual->izquierda);
+    if (datos_jugador->actual->derecha != -1) printf("(4) Derecha -> Escenario %d\n", datos_jugador->actual->derecha);
+    
+    printf("\nSeleccione el número de la dirección: ");
+    
+    char direccion;
+    scanf(" %c", &direccion);
+    
+    int nuevo_id = -1;
+    const char* nombre_direccion = "";
+    
+    // Validar dirección seleccionada
+    switch (direccion) {
+        case '1':
+            if (datos_jugador->actual->arriba == -1) {
+                printf("\n¡No hay salida en esa dirección!\n");
+                return;
+            }
+            nuevo_id = datos_jugador->actual->arriba;
+            nombre_direccion = "ARRIBA";
+            break;
+            
+        case '2':
+            if (datos_jugador->actual->abajo == -1) {
+                printf("\n¡No hay salida en esa dirección!\n");
+                return;
+            }
+            nuevo_id = datos_jugador->actual->abajo;
+            nombre_direccion = "ABAJO";
+            break;
+            
+        case '3':
+            if (datos_jugador->actual->izquierda == -1) {
+                printf("\n¡No hay salida en esa dirección!\n");
+                return;
+            }
+            nuevo_id = datos_jugador->actual->izquierda;
+            nombre_direccion = "IZQUIERDA";
+            break;
+            
+        case '4':
+            if (datos_jugador->actual->derecha == -1) {
+                printf("\n¡No hay salida en esa dirección!\n");
+                return;
+            }
+            nuevo_id = datos_jugador->actual->derecha;
+            nombre_direccion = "DERECHA";
+            break;
+            
+        default:
+            printf("\n¡Opción no válida!\n");
+            return;
+    }
+    
+    // Convertir el ID numérico a string para buscar en el mapa
+    char id_str[10];
+    snprintf(id_str, sizeof(id_str), "%d", nuevo_id);
+    
+    // Buscar el nuevo escenario en el mapa
+    MapPair* pair = map_search(esce_ID, id_str);
+    if (pair == NULL) {
+        printf("\nError: No se encontró el escenario %d\n", nuevo_id);
+        return;
+    }
+    
+    // Actualizar la posición del jugador
+    datos_jugador->actual = (Juego*)pair->value;
+    datos_jugador->tiempo--;
+    
+    printf("\n¡Has avanzado %s hacia '%s'!\n", nombre_direccion, datos_jugador->actual->nombre);
+
     /*mostrar las direcciones disponibles, preguntar al usuario si desea*/
+    /*printf("Direcciones posibles desde este escenario:\n");
+    if (datos_jugador->actual->arriba != -1) printf("Arriba es: (1)\n");
+    if (datos_jugador->actual->abajo != -1) printf("Abajo es: (2)\n");
+    if (datos_jugador->actual->izquierda != -1) printf("Izquierda es: (3)\n");
+    if (datos_jugador->actual->derecha != -1) printf("Derecha es: (4)\n\n");
+    printf("seleccione el numero de la direccion si desea avanzar en esa dirección\n");
+
+    char direccion;
+    scanf(" %c", &direccion);
+    int id_de_la_direccion = -1;//colocar la id de la direccion que elegimos
+    
+    switch (direccion) {
+        case '1':
+            id_de_la_direccion = datos_jugador->actual->arriba;
+            printf("Has avanzado a la dirección 'ARRIBA'\n");
+            break;
+        case '2':
+            id_de_la_direccion = datos_jugador->actual->abajo;
+            printf("Has avanzado a la dirección 'ABAJO'\n"); 
+            break;
+        case '3':
+            id_de_la_direccion = datos_jugador->actual->izquierda; 
+            printf("Has avanzado a la dirección 'IZQUIERDA'\n");
+            break;
+        case '4':
+            id_de_la_direccion = datos_jugador->actual->derecha;
+            printf("Has avanzado a la dirección 'DERECHA'\n"); 
+            break;
+        default:
+            printf("ha ingresado una dirección inválida\n");
+            
+    }
+    
+    if(id_de_la_direccion == -1){
+        printf("No hay direcciones disponibles para este escenario\n");
+    }
+    //convertir id_de_la_direccion a string ya que primero lo use como número para las direcciones y ahora lo debo 
+    //usar para cambiar de escenario
+    char id_direccion_str[100];
+    snprintf(id_direccion_str, sizeof(id_direccion_str), "%d", id_de_la_direccion);
+
+    MapPair* next = map_search(esce_ID, id_direccion_str);
+    if (next == NULL){
+       printf("No se a encontrado el escenaro con ID: %s\n", id_direccion_str);
+       return;
+    }
+    datos_jugador->actual = (Juego*)next->value;
+    datos_jugador->tiempo -= 1;*/
 
 }
 
@@ -337,6 +470,7 @@ int main() {
                             //reiniciar_partida(estado_inicial);
                             break;
                         }
+                        mostrar_escenario_actual(datos_jugador);
                         presioneTeclaParaContinuar();
                         limpiarPantalla();
 

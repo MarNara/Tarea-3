@@ -32,6 +32,7 @@ Map *map_create(int (*is_equal)(void *key1, void *key2)) {
   newMap->lower_than = NULL;
   newMap->is_equal = is_equal;
   newMap->ls = list_create();
+  
 
   return newMap;
 }
