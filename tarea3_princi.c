@@ -247,7 +247,7 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID){
     }
     //actualizar los items del juego, como el jugador toma uno, ese item desaparece de los items del juego
     datos_jugador->actual->items = new_list_items_escenario;
-    datos_jugador->tiempo -= 1;
+    datos_jugador->tiempo --;
 
     printf("item agregado al inventario: %s\n", datos_jugador->inventario);
     printf("tiempo restante del jugador: %s\n", datos_jugador->tiempo);
@@ -259,83 +259,8 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID){
 
 void avanzar_una_direccion(Jugador* datos_jugador, Map* esce_ID){
 
-    // Mostrar direcciones disponibles
-    printf("\nDirecciones posibles desde '%s':\n", datos_jugador->actual->nombre);
-    if (datos_jugador->actual->arriba != -1) printf("(1) Arriba -> Escenario %d\n", datos_jugador->actual->arriba);
-    if (datos_jugador->actual->abajo != -1) printf("(2) Abajo -> Escenario %d\n", datos_jugador->actual->abajo);
-    if (datos_jugador->actual->izquierda != -1) printf("(3) Izquierda -> Escenario %d\n", datos_jugador->actual->izquierda);
-    if (datos_jugador->actual->derecha != -1) printf("(4) Derecha -> Escenario %d\n", datos_jugador->actual->derecha);
-    
-    printf("\nSeleccione el número de la dirección: ");
-    
-    char direccion;
-    scanf(" %c", &direccion);
-    
-    int nuevo_id = -1;
-    const char* nombre_direccion = "";
-    
-    // Validar dirección seleccionada
-    switch (direccion) {
-        case '1':
-            if (datos_jugador->actual->arriba == -1) {
-                printf("\n¡No hay salida en esa dirección!\n");
-                return;
-            }
-            nuevo_id = datos_jugador->actual->arriba;
-            nombre_direccion = "ARRIBA";
-            break;
-            
-        case '2':
-            if (datos_jugador->actual->abajo == -1) {
-                printf("\n¡No hay salida en esa dirección!\n");
-                return;
-            }
-            nuevo_id = datos_jugador->actual->abajo;
-            nombre_direccion = "ABAJO";
-            break;
-            
-        case '3':
-            if (datos_jugador->actual->izquierda == -1) {
-                printf("\n¡No hay salida en esa dirección!\n");
-                return;
-            }
-            nuevo_id = datos_jugador->actual->izquierda;
-            nombre_direccion = "IZQUIERDA";
-            break;
-            
-        case '4':
-            if (datos_jugador->actual->derecha == -1) {
-                printf("\n¡No hay salida en esa dirección!\n");
-                return;
-            }
-            nuevo_id = datos_jugador->actual->derecha;
-            nombre_direccion = "DERECHA";
-            break;
-            
-        default:
-            printf("\n¡Opción no válida!\n");
-            return;
-    }
-    
-    // Convertir el ID numérico a string para buscar en el mapa
-    char id_str[10];
-    snprintf(id_str, sizeof(id_str), "%d", nuevo_id);
-    
-    // Buscar el nuevo escenario en el mapa
-    MapPair* pair = map_search(esce_ID, id_str);
-    if (pair == NULL) {
-        printf("\nError: No se encontró el escenario %d\n", nuevo_id);
-        return;
-    }
-    
-    // Actualizar la posición del jugador
-    datos_jugador->actual = (Juego*)pair->value;
-    datos_jugador->tiempo--;
-    
-    printf("\n¡Has avanzado %s hacia '%s'!\n", nombre_direccion, datos_jugador->actual->nombre);
-
     /*mostrar las direcciones disponibles, preguntar al usuario si desea*/
-    /*printf("Direcciones posibles desde este escenario:\n");
+    printf("Direcciones posibles desde este escenario:\n");
     if (datos_jugador->actual->arriba != -1) printf("Arriba es: (1)\n");
     if (datos_jugador->actual->abajo != -1) printf("Abajo es: (2)\n");
     if (datos_jugador->actual->izquierda != -1) printf("Izquierda es: (3)\n");
@@ -382,7 +307,7 @@ void avanzar_una_direccion(Jugador* datos_jugador, Map* esce_ID){
        return;
     }
     datos_jugador->actual = (Juego*)next->value;
-    datos_jugador->tiempo -= 1;*/
+    datos_jugador->tiempo --;
 
 }
 
