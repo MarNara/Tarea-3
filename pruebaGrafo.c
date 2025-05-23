@@ -112,7 +112,7 @@ void cargarEscenarios(const char* nombreArchivo, Map* mapaNodos, Nodo** nodoInic
 
     fclose(archivo);
 
-    // Resolver conexiones (punteros)
+    // conexiones  vecinas (punteros)
     MapPair* par = map_first(mapaNodos);
     while (par != NULL) {
         Nodo* nodo = (Nodo*)par->value;
