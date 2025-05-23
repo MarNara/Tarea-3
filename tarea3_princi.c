@@ -10,7 +10,8 @@
 int compararClaves_strcmp(void* a, void* b) {
     return strcmp((char*)a, (char*)b);
 }
-
+/*crear una estructura que los nodos se conecten a los vecinos, luego debo crear con mapa para que la busqueda de id sea mas rapida
+*/
 
 typedef struct{
     char id[100];

@@ -74,15 +74,20 @@ Nodo* cargarEscenarios(const char* nombreArchivo) {
 
         char* campos[9];
         int campoActual = 0;
-        char* ptr = linea;
+        char* ptr = linea;//la linea de caracteres, la que contiene la descripción
         int enComillas = 0;
         char campoTemp[MAX_LINEA] = {0};
         int j = 0;
 
         int i = 0;
-        while (ptr[i] != '\0') {
+        while (ptr[i] != '\0') {//recorrer la linea de la descripción
             if (ptr[i] == '"') {
-                enComillas = !enComillas;
+                if (enComillas){
+                    enComillas = 0;
+                }else{
+                    enComillas = 1;
+                }
+                     
             } else if (ptr[i] == ',' && !enComillas) {
                 campoTemp[j] = '\0';
                 campos[campoActual] = malloc(strlen(campoTemp) + 1);
