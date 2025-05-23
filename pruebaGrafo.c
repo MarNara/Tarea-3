@@ -25,8 +25,8 @@ typedef struct Nodo {
     struct Nodo* siguiente;
 } Nodo;
 
-// Función para parsear items separados por ';' y dentro cada item por ','
-void parsearItems(char* str, Item* items, int* num_items) {
+// esta funcion se encarga de leer items separados por ';' y dentro cada item por ',' para luego separar cada uno como un valor
+void separar_items(char* str, Item* items, int* num_items) {
     *num_items = 0;
     char* token = strtok(str, ";");
     while (token != NULL && *num_items < MAX_ITEMS) {
@@ -59,7 +59,7 @@ void parsearItems(char* str, Item* items, int* num_items) {
 Nodo* cargarEscenarios(const char* nombreArchivo) {
     FILE* archivo = fopen(nombreArchivo, "r");
     if (!archivo) {
-        printf("Error al abrir archivo\n");
+        printf("Error al abrir el archivo.\n");
         return NULL;
     }
 
@@ -70,32 +70,40 @@ Nodo* cargarEscenarios(const char* nombreArchivo) {
     Nodo* lista = NULL;
 
     while (fgets(linea, MAX_LINEA, archivo)) {
-        // Remover salto de línea
         linea[strcspn(linea, "\r\n")] = 0;
 
-        // Variables para campos
         char* campos[9];
-        int i = 0;
+        int campoActual = 0;
+        char* ptr = linea;
+        int enComillas = 0;
+        char campoTemp[MAX_LINEA] = {0};
+        int j = 0;
 
-        char* ptr = strtok(linea, ",");
-        while (ptr != NULL && i < 9) {
-            campos[i++] = ptr;
-            ptr = strtok(NULL, ",");
+        int i = 0;
+        while (ptr[i] != '\0') {
+            if (ptr[i] == '"') {
+                enComillas = !enComillas;
+            } else if (ptr[i] == ',' && !enComillas) {
+                campoTemp[j] = '\0';
+                campos[campoActual] = malloc(strlen(campoTemp) + 1);
+                strcpy(campos[campoActual++], campoTemp);
+                j = 0;
+                campoTemp[0] = '\0';
+            } else {
+                campoTemp[j++] = ptr[i];
+            }
+            i++;
         }
 
-        // En tu archivo, la descripción puede contener comas, lo que rompe el tokenizing simple.
-        // Para manejarlo bien, tendrías que hacer un parser más complejo o asumir que no hay comas en descripción.
-        // Aquí asumimos que descripción NO tiene comas.
 
-        if (i < 9) {
-            // Intentar manejar descripción con comas:
-            // La línea no fue bien tokenizada, entonces tenemos que reconstruir la descripción:
-            // Suponiendo que ID,Nombre son campos 0 y 1,
-            // el resto hasta Items es descripción (campo 2).
-            // Para simplificar, dejamos como está.
+        // Último campo
+        campoTemp[j] = '\0';
+        campos[campoActual] = malloc(strlen(campoTemp) + 1);
+        strcpy(campos[campoActual++], campoTemp);
 
-            // Para un parser robusto, tendrías que implementar un estado máquina para la lectura.
-            printf("Línea con formato inesperado, se omite\n");
+        if (campoActual != 9) {
+            printf("Línea malformada: %s\n", linea);
+            for (int i = 0; i < campoActual; i++) free(campos[i]);
             continue;
         }
 
@@ -106,21 +114,25 @@ Nodo* cargarEscenarios(const char* nombreArchivo) {
         strncpy(nodo->descripcion, campos[2], 255);
         nodo->descripcion[255] = '\0';
 
-        // Procesar items
         nodo->num_items = 0;
         if (strlen(campos[3]) > 0) {
-            parsearItems(campos[3], nodo->items, &(nodo->num_items));
+            separar_items(campos[3], nodo->items, &(nodo->num_items));
         }
 
         nodo->arriba = atoi(campos[4]);
         nodo->abajo = atoi(campos[5]);
         nodo->izquierda = atoi(campos[6]);
         nodo->derecha = atoi(campos[7]);
-        nodo->esFinal = (strcmp(campos[8], "Si") == 0 || strcmp(campos[8], "si") == 0) ? 1 : 0;
+        nodo->esFinal = (strcmp(campos[8], "Si") == 0 || strcmp(campos[8], "si") == 0);
 
-        // Insertar al inicio de la lista
+        // Insertar a la lista enlazada
         nodo->siguiente = lista;
         lista = nodo;
+
+        // Liberar campos
+        for (int i = 0; i < 9; i++) {
+            free(campos[i]);
+        }
     }
 
     fclose(archivo);
@@ -152,3 +164,6 @@ int main() {
 
     return 0;
 }
+
+//gcc tdas/*.c pruebaGrafo.c -Wno-unused-result -o pruebaGrafo
+//./pruebaGrafo
