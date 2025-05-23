@@ -5,6 +5,8 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "heap.h": "c",
-        "extra.h": "c"
+        "extra.h": "c",
+        "string.h": "c",
+        "map.h": "c"
     }
 }

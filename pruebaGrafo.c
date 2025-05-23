@@ -1,149 +1,198 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
+#include "tdas/list.h"
+#include "tdas/map.h"
+#include "tdas/heap.h"
+#include "tdas/extra.h"
 
 #define MAX_LINEA 1024
 #define MAX_ITEMS 10
 
-typedef struct {
+int compararClaves_strcmp(void* a, void* b) {
+    return strcmp((char*)a, (char*)b);
+}
+
+// ------------------ ESTRUCTURAS ------------------
+
+typedef struct Juego_Item {
     char nombre[50];
     int valor;
     int peso;
-} Item;
+} Juego_Item;
 
 typedef struct Nodo {
-    int id;
+    char id[20];
     char nombre[100];
     char descripcion[256];
-    Item items[MAX_ITEMS];
-    int num_items;
-    int arriba;
-    int abajo;
-    int izquierda;
-    int derecha;
+    struct Nodo* arriba;
+    struct Nodo* abajo;
+    struct Nodo* izquierda;
+    struct Nodo* derecha;
     int esFinal;
-    struct Nodo* siguiente;
+    List* items;
 } Nodo;
 
-// esta funcion se encarga de leer items separados por ';' y dentro cada item por ',' para luego separar cada uno como un valor
-void separar_items(char* str, Item* items, int* num_items) {
-    *num_items = 0;
-    char* token = strtok(str, ";");
-    while (token != NULL && *num_items < MAX_ITEMS) {
-        // Cada token es algo tipo "Cuchillo,3,1"
-        char* subtoken = strtok(token, ",");
-        if (subtoken) {
-            strncpy(items[*num_items].nombre, subtoken, 49);
-            items[*num_items].nombre[49] = '\0';
+// ------------------ CARGA DE ESCENARIOS ------------------
 
-            subtoken = strtok(NULL, ",");
-            if (subtoken != NULL) {
-                items[*num_items].valor = atoi(subtoken);
-            } else {
-                items[*num_items].valor = 0;
-            }
-
-            subtoken = strtok(NULL, ",");
-            if (subtoken != NULL) {
-                items[*num_items].peso = atoi(subtoken);
-            } else {
-                items[*num_items].peso = 0;
-            }
-
-            (*num_items)++;
-        }
-        token = strtok(NULL, ";");
-    }
-}
-
-Nodo* cargarEscenarios(const char* nombreArchivo) {
+void cargarEscenarios(const char* nombreArchivo, Map* mapaNodos, Nodo** nodoInicial) {
     FILE* archivo = fopen(nombreArchivo, "r");
     if (!archivo) {
-        printf("Error al abrir el archivo.\n");
-        return NULL;
+        printf("No se pudo abrir el archivo.\n");
+        *nodoInicial = NULL;
+        return;
     }
 
-    char linea[MAX_LINEA];
-    // Leer encabezado y descartarlo
-    fgets(linea, MAX_LINEA, archivo);
+    char linea[1024];
+    fgets(linea, sizeof(linea), archivo); // Saltar encabezado
 
-    Nodo* lista = NULL;
+    while (fgets(linea, sizeof(linea), archivo)) {
+        Nodo* nodo = malloc(sizeof(Nodo));
+        if (!nodo) continue;
 
-    while (fgets(linea, MAX_LINEA, archivo)) {
-        linea[strcspn(linea, "\r\n")] = 0;
+        char idStr[20], nombre[100], descripcion[256];
+        char itemsStr[256], arribaID[20], abajoID[20], izquierdaID[20], derechaID[20], esFinalStr[10];
 
-        char* campos[9];
-        int campoActual = 0;
-        char* ptr = linea;//la linea de caracteres, la que contiene la descripción
-        int enComillas = 0;
-        char campoTemp[MAX_LINEA] = {0};
-        int j = 0;
+        sscanf(linea, "%19[^,],%99[^,],%255[^,],%255[^,],%19[^,],%19[^,],%19[^,],%19[^,],%9[^\n]",
+               idStr, nombre, descripcion, itemsStr, arribaID, abajoID, izquierdaID, derechaID, esFinalStr);
 
-        int i = 0;
-        while (ptr[i] != '\0') {//recorrer la linea de la descripción
-            if (ptr[i] == '"') {
-                if (enComillas){
-                    enComillas = 0;
-                }else{
-                    enComillas = 1;
+        strcpy(nodo->id, trim(idStr));
+        strcpy(nodo->nombre, nombre);
+        strcpy(nodo->descripcion, descripcion);
+        nodo->esFinal = (strcmp(esFinalStr, "Si") == 0 || strcmp(esFinalStr, "si") == 0) ? 1 : 0;
+
+        nodo->arriba = (strcmp(arribaID, "-1") != 0) ? (Nodo*)strdup(trim(arribaID)) : NULL;
+        nodo->abajo = (strcmp(abajoID, "-1") != 0) ? (Nodo*)strdup(trim(abajoID)) : NULL;
+        nodo->izquierda = (strcmp(izquierdaID, "-1") != 0) ? (Nodo*)strdup(trim(izquierdaID)) : NULL;
+        nodo->derecha = (strcmp(derechaID, "-1") != 0) ? (Nodo*)strdup(trim(derechaID)) : NULL;
+
+        nodo->items = list_create();
+        if (strlen(itemsStr) > 0) {
+            List* listaTokens = split_string(itemsStr, ";");
+
+            char* itemStr = list_first(listaTokens);
+            while (itemStr != NULL) {
+                List* partes = split_string(itemStr, ",");
+
+                char* nombre = list_first(partes);
+                char* valorStr = list_next(partes);
+                char* pesoStr = list_next(partes);
+
+                if (nombre) {
+                    Juego_Item* nuevo = malloc(sizeof(Juego_Item));
+                    strncpy(nuevo->nombre, nombre, sizeof(nuevo->nombre) - 1);
+                    nuevo->nombre[sizeof(nuevo->nombre) - 1] = '\0';
+                    nuevo->valor = valorStr ? atoi(valorStr) : 0;
+                    nuevo->peso = pesoStr ? atoi(pesoStr) : 0;
+                    list_pushBack(nodo->items, nuevo);
                 }
-                     
-            } else if (ptr[i] == ',' && !enComillas) {
-                campoTemp[j] = '\0';
-                campos[campoActual] = malloc(strlen(campoTemp) + 1);
-                strcpy(campos[campoActual++], campoTemp);
-                j = 0;
-                campoTemp[0] = '\0';
-            } else {
-                campoTemp[j++] = ptr[i];
+
+                char* ptr = list_first(partes);
+                while (ptr != NULL) {
+                    free(ptr);
+                    ptr = list_next(partes);
+                }
+                free(partes);
+
+                itemStr = list_next(listaTokens);
             }
-            i++;
+
+            char* ptr = list_first(listaTokens);
+            while (ptr != NULL) {
+                free(ptr);
+                ptr = list_next(listaTokens);
+            }
+            free(listaTokens);
         }
 
-
-        // Último campo
-        campoTemp[j] = '\0';
-        campos[campoActual] = malloc(strlen(campoTemp) + 1);
-        strcpy(campos[campoActual++], campoTemp);
-
-        if (campoActual != 9) {
-            printf("Línea malformada: %s\n", linea);
-            for (int i = 0; i < campoActual; i++) free(campos[i]);
-            continue;
-        }
-
-        Nodo* nodo = (Nodo*)malloc(sizeof(Nodo));
-        nodo->id = atoi(campos[0]);
-        strncpy(nodo->nombre, campos[1], 99);
-        nodo->nombre[99] = '\0';
-        strncpy(nodo->descripcion, campos[2], 255);
-        nodo->descripcion[255] = '\0';
-
-        nodo->num_items = 0;
-        if (strlen(campos[3]) > 0) {
-            separar_items(campos[3], nodo->items, &(nodo->num_items));
-        }
-
-        nodo->arriba = atoi(campos[4]);
-        nodo->abajo = atoi(campos[5]);
-        nodo->izquierda = atoi(campos[6]);
-        nodo->derecha = atoi(campos[7]);
-        nodo->esFinal = (strcmp(campos[8], "Si") == 0 || strcmp(campos[8], "si") == 0);
-
-        // Insertar a la lista enlazada
-        nodo->siguiente = lista;
-        lista = nodo;
-
-        // Liberar campos
-        for (int i = 0; i < 9; i++) {
-            free(campos[i]);
-        }
+        char* clave = strdup(nodo->id);
+        map_insert(mapaNodos, clave, nodo);
     }
 
     fclose(archivo);
-    return lista;
+
+    // Resolver conexiones (punteros)
+    MapPair* par = map_first(mapaNodos);
+    while (par != NULL) {
+        Nodo* nodo = (Nodo*)par->value;
+
+        char* arribaID = (char*)nodo->arriba;
+        char* abajoID = (char*)nodo->abajo;
+        char* izquierdaID = (char*)nodo->izquierda;
+        char* derechaID = (char*)nodo->derecha;
+
+        MapPair* buscado;
+        nodo->arriba = (arribaID && (buscado = map_search(mapaNodos, trim(arribaID)))) ? buscado->value : NULL;
+        nodo->abajo = (abajoID && (buscado = map_search(mapaNodos, trim(abajoID)))) ? buscado->value : NULL;
+        nodo->izquierda = (izquierdaID && (buscado = map_search(mapaNodos, trim(izquierdaID)))) ? buscado->value : NULL;
+        nodo->derecha = (derechaID && (buscado = map_search(mapaNodos, trim(derechaID)))) ? buscado->value : NULL;
+
+        par = map_next(mapaNodos);
+    }
+
+    // Buscar nodo inicial (ID "1" limpio con trim)
+    char claveInicial[] = "1";
+    MapPair* inicio = map_search(mapaNodos, trim(claveInicial));
+    *nodoInicial = (inicio) ? (Nodo*)inicio->value : NULL;
 }
 
+
+// ------------------ MOSTRAR NODO ------------------
+
+void mostrarNodo(Nodo* nodo) {
+    if (!nodo) return;
+
+    printf("==== Nodo ID: %s ====\n", nodo->id);
+    printf("Nombre: %s\n", nodo->nombre);
+    printf("Descripción: %s\n", nodo->descripcion);
+    printf("Es final: %s\n", nodo->esFinal ? "Sí" : "No");
+
+    printf("Conexiones:\n");
+    printf("  Arriba: %s\n", nodo->arriba ? nodo->arriba->id : "Ninguna");
+    printf("  Abajo: %s\n", nodo->abajo ? nodo->abajo->id : "Ninguna");
+    printf("  Izquierda: %s\n", nodo->izquierda ? nodo->izquierda->id : "Ninguna");
+    printf("  Derecha: %s\n", nodo->derecha ? nodo->derecha->id : "Ninguna");
+
+    printf("Ítems:\n");
+    void* itemPtr = list_first(nodo->items);
+    while (itemPtr != NULL) {
+        Juego_Item* item = (Juego_Item*)itemPtr;
+        printf("  - %s (valor: %d, peso: %d)\n", item->nombre, item->valor, item->peso);
+        itemPtr = list_next(nodo->items);
+    }
+
+    printf("\n");
+}
+
+// ------------------ MAIN ------------------
+
+int main() {
+    Map* mapaNodos = map_create(compararClaves_strcmp);
+    Nodo* inicio = NULL;
+    cargarEscenarios("graphquest.csv", mapaNodos, &inicio);
+
+    if (!inicio) {
+    printf("Error: no se pudo cargar el nodo inicial.\n");
+
+    // Mostrar las claves almacenadas en el mapa
+    printf("\nClaves en el mapa:\n");
+    MapPair* par = map_first(mapaNodos);
+    while (par != NULL) {
+        printf("  -> '%s'\n", (char*)par->key);
+        par = map_next(mapaNodos);
+    }
+
+    return 1;
+}
+
+
+    mostrarNodo(inicio);
+    return 0;
+}
+
+
+/*
 void imprimirEscenarios(Nodo* lista) {
     Nodo* actual = lista;
     while (actual != NULL) {
@@ -155,20 +204,9 @@ void imprimirEscenarios(Nodo* lista) {
         printf("EsFinal: %d\n\n", actual->esFinal);
         actual = actual->siguiente;
     }
-}
+}*/
 
-int main() {
-    Nodo* escenarios = cargarEscenarios("graphquest.csv");
-    if (!escenarios) {
-        return 1;
-    }
 
-    imprimirEscenarios(escenarios);
-
-    // Aquí deberías liberar memoria cuando ya no necesites los nodos
-
-    return 0;
-}
 
 //gcc tdas/*.c pruebaGrafo.c -Wno-unused-result -o pruebaGrafo
 //./pruebaGrafo

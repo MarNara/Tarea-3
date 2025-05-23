@@ -95,14 +95,15 @@ List *split_string(const char *str, const char *delim) {
 
 //eliminar espacios
 char* trim(char* str) {
-    while(isspace((unsigned char)*str)) str++;
-    
-    char* end = str + strlen(str) - 1;
-    while(end > str && isspace((unsigned char)*end)) end--;
-    
-    *(end+1) = '\0';
+    char* end;
+    while (isspace((unsigned char)*str)) str++;
+    if (*str == 0) return str;
+    end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) end--;
+    end[1] = '\0';
     return str;
 }
+
 
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
