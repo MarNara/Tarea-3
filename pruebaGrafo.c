@@ -24,20 +24,29 @@ typedef struct {
     int id_item;
 } Item;
 
+
+typedef struct Juego Juego;
+
 // estructura del juego, los nodo/escenario
-typedef struct Juego {
+struct Juego {
     int id;
     char* nombre;
     char* descripcion;
     Item** items;
     int num_items;
-    int arriba;
-    int abajo;
-    int izquierda;
-    int derecha;
+    Juego* arriba;
+    Juego* abajo;
+    Juego* izquierda;
+    Juego* derecha;
     int es_final;
-    struct Juego** vecinos; // Para el grafo
-} Juego;
+
+    //temporal, para leer
+    int temp_arriba;
+    int temp_abajo;
+    int temp_izquierda;
+    int temp_derecha;
+    //struct Juego** vecinos; // Para el grafo
+};
 
 // estructura del grafo con mapa 
 typedef struct {
@@ -75,12 +84,16 @@ Juego* inicializar_escenario(int id, char* nombre, char* descripcion) {
     esc->descripcion = strdup(descripcion);
     esc->items = NULL;
     esc->num_items = 0;
-    esc->arriba = -1;
-    esc->abajo = -1;
-    esc->izquierda = -1;
-    esc->derecha = -1;
+    esc->arriba = NULL;
+    esc->abajo = NULL;
+    esc->izquierda = NULL;
+    esc->derecha = NULL;
     esc->es_final = 0;
-    esc->vecinos = NULL;
+    //esc->vecinos = NULL;
+    esc->temp_arriba = 0;
+    esc->temp_abajo = 0;
+    esc->temp_izquierda = 0;
+    esc->temp_derecha = 0;
     return esc;
 }
 
@@ -188,11 +201,13 @@ MapaDelEsc* cargar_archivo() {
         list_clean(items_list);
         free(items_list);
         
-        // Establecer vecinos
-        esc->arriba = atoi(campos[4]);
-        esc->abajo = atoi(campos[5]);
-        esc->izquierda = atoi(campos[6]);
-        esc->derecha = atoi(campos[7]);
+        // Establecer vecinos temporales
+
+
+        esc->temp_arriba = atoi(campos[4]);
+        esc->temp_abajo = atoi(campos[5]);
+        esc->temp_izquierda = atoi(campos[6]);
+        esc->temp_derecha = atoi(campos[7]);
         
         esc->es_final = atoi(campos[8]);
         
@@ -203,20 +218,23 @@ MapaDelEsc* cargar_archivo() {
     fclose(archivo);
     
     // falta establecer vecinos entre escenarios
+
     for (int i = 0; i < mapa->num_escena; i++) {
-        Juego* actual = mapa->escenarios[i];
-        // reservar espacio para 4 vecinos (arriba, abajo, izquierda, derecha)
-        actual->vecinos = malloc(4 * sizeof(Juego*));
-        
-        // buscar escenarios vecinos
-        for (int j = 0; j < mapa->num_escena; j++) {
-            Juego* actual_escenarios = mapa->escenarios[j];
-            if (actual_escenarios->id == actual->arriba) actual->vecinos[0] = actual_escenarios;
-            if (actual_escenarios->id == actual->abajo) actual->vecinos[1] = actual_escenarios;
-            if (actual_escenarios->id == actual->izquierda) actual->vecinos[2] = actual_escenarios;
-            if (actual_escenarios->id == actual->derecha) actual->vecinos[3] = actual_escenarios;
-        }
+    Juego* actual = mapa->escenarios[i];
+    for (int j = 0; j < mapa->num_escena; j++) {
+        Juego* vecino_direccion = mapa->escenarios[j];
+
+        if (vecino_direccion->id == actual->temp_arriba)
+            actual->arriba = vecino_direccion;
+        if (vecino_direccion->id == actual->temp_abajo)
+            actual->abajo = vecino_direccion;
+        if (vecino_direccion->id == actual->temp_izquierda)
+            actual->izquierda = vecino_direccion;
+        if (vecino_direccion->id == actual->temp_derecha)
+            actual->derecha = vecino_direccion;
     }
+}
+    
     printf("El archivo se a cargado correctamente\n");
     presioneTeclaParaContinuar();
     return mapa;
@@ -290,10 +308,10 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     
     // 5) 
     printf("\n------ Direcciones disponibles ------\n");
-    if (actual->arriba != -1) printf("1) Arriba\n");
-    if (actual->abajo != -1) printf("2) Abajo\n");
-    if (actual->izquierda != -1) printf("3) Izquierda\n");
-    if (actual->derecha != -1) printf("4) Derecha\n");
+    if (actual->arriba != NULL) printf("1) Arriba\n");
+    if (actual->abajo != NULL) printf("2) Abajo\n");
+    if (actual->izquierda != NULL) printf("3) Izquierda\n");
+    if (actual->derecha != NULL) printf("4) Derecha\n");
 }
 
 
@@ -347,16 +365,16 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego, int d
     // Determinar dirección
     switch(direccion) {
         case 1: // Arriba
-            siguiente = escenario_actual->vecinos[0];
+            siguiente = escenario_actual->arriba;
             break;
         case 2: // Abajo
-            siguiente = escenario_actual->vecinos[1];
+            siguiente = escenario_actual->abajo;
             break;
         case 3: // Izquierda
-            siguiente = escenario_actual->vecinos[2];
+            siguiente = escenario_actual->izquierda;
             break;
         case 4: // Derecha
-            siguiente = escenario_actual->vecinos[3];
+            siguiente = escenario_actual->derecha;
             break;
         default:
             printf("Dirección no válida\n");
@@ -459,10 +477,10 @@ int main() {
                             case '3':
                                 limpiarPantalla();
                                 printf("Direcciones disponibles:\n");
-                                if (datos_jugador->actual->arriba != -1) printf("1) Arriba\n");
-                                if (datos_jugador->actual->abajo != -1) printf("2) Abajo\n");
-                                if (datos_jugador->actual->izquierda != -1) printf("3) Izquierda\n");
-                                if (datos_jugador->actual->derecha != -1) printf("4) Derecha\n");
+                                if (datos_jugador->actual->arriba != NULL) printf("1) Arriba\n");
+                                if (datos_jugador->actual->abajo != NULL) printf("2) Abajo\n");
+                                if (datos_jugador->actual->izquierda != NULL) printf("3) Izquierda\n");
+                                if (datos_jugador->actual->derecha != NULL) printf("4) Derecha\n");
                                 
                                 int direccion;
                                 printf("Seleccione dirección: ");
