@@ -14,6 +14,8 @@ int comparar_claves_ids(void* id1, void* id2) {
     return *a == *b;
 }
 
+
+//----------------------------------------------------------Estructuras-------------------------------------------------------------
 // estructura del item
 typedef struct {
     char* nombre;
@@ -21,7 +23,6 @@ typedef struct {
     int peso;
     int id_item;
 } Item;
-
 
 // estructura del juego, los nodo/escenario
 typedef struct Juego {
@@ -35,17 +36,17 @@ typedef struct Juego {
     int izquierda;
     int derecha;
     int es_final;
-    struct Juego** conexiones; // Para el grafo
+    struct Juego** vecinos; // Para el grafo
 } Juego;
 
 // estructura del grafo con mapa 
 typedef struct {
-    Juego** escenarios;
-    int num_escenarios;
+    Juego** escenarios;//estrcutura de los datos del juego
+    int num_escena;//para usar el for, ya que no guarde item en list, solo en un array
     Juego* inicio;
 } MapaDelEsc;
 
-
+//estructura de los datos del jugador
 typedef struct{
     int tiempo;
     List* inventario;
@@ -54,11 +55,11 @@ typedef struct{
     int totalPuntaje; 
 } Jugador;
 
-//-----------------------------inicializar estructuras para evitar errores---------------------------------
+//-----------------------------------inicializar estructuras para evitar errores--------------------------------------------------
 
 
 // inicializar la estructura item aparte para desglosar el cargar archivos
-Item* crear_item(char* nombre, int valor, int peso, int id_DelItem) {
+Item* inicializar_item(char* nombre, int valor, int peso, int id_DelItem) {
     Item* item = (Item*)malloc(sizeof(Item));
     item->nombre = strdup(nombre);
     item->valor = valor;
@@ -67,7 +68,7 @@ Item* crear_item(char* nombre, int valor, int peso, int id_DelItem) {
     return item;
 }
 // esta funcion inicializa la estructura item
-Juego* crear_escenario(int id, char* nombre, char* descripcion) {
+Juego* inicializar_escenario(int id, char* nombre, char* descripcion) {
     Juego* esc = (Juego*)malloc(sizeof(Juego));
     esc->id = id;
     esc->nombre = strdup(nombre);
@@ -79,15 +80,15 @@ Juego* crear_escenario(int id, char* nombre, char* descripcion) {
     esc->izquierda = -1;
     esc->derecha = -1;
     esc->es_final = 0;
-    esc->conexiones = NULL;
+    esc->vecinos = NULL;
     return esc;
 }
 
 // esta funcion inicializa la estructura item
-MapaDelEsc* crear_mapa() {
+MapaDelEsc* inicializar_mapa() {
     MapaDelEsc* mapa = (MapaDelEsc*)malloc(sizeof(MapaDelEsc));
     mapa->escenarios = NULL;
-    mapa->num_escenarios = 0;
+    mapa->num_escena = 0;
     mapa->inicio = NULL;
     return mapa;
 }
@@ -100,8 +101,8 @@ MapaDelEsc* crear_mapa() {
     int totalPuntaje; 
 } Jugador;
 
-//inicializar jugador
-Jugador* crear_item(int tiempo, Juego* actual, int totalPeso, int totalPuntaje) {
+//inicializar jugador (si alcanzo arreglarlo bonito, acá, si no, dejar el main feo)
+Jugador* inicializar_jugador(int tiempo, Juego* actual, int totalPeso, int totalPuntaje) {
     Jugador* jugador_naranja = (Jugador*)malloc(sizeof(Jugador));
     jugador_naranja->tiempo = 10;
     jugador_naranja->inventario = list_create();
@@ -109,51 +110,22 @@ Jugador* crear_item(int tiempo, Juego* actual, int totalPeso, int totalPuntaje) 
 
     return Jugador;
 }*/
-
-// Función para liberar un ítem
-void liberar_item(Item* item) {
-    free(item->nombre);
-    free(item);
-}
-
-// Función para liberar un escenario
-void liberar_escenario(Juego* esc) {
-    free(esc->nombre);
-    free(esc->descripcion);
-    for (int i = 0; i < esc->num_items; i++) {
-        liberar_item(esc->items[i]);
-    }
-    free(esc->items);
-    free(esc->conexiones);
-    free(esc);
-}
-
-
-
-// Función para liberar un mapa
-void liberar_mapa(MapaDelEsc* mapa) {
-    for (int i = 0; i < mapa->num_escenarios; i++) {
-        liberar_escenario(mapa->escenarios[i]);
-    }
-    free(mapa->escenarios);
-    free(mapa);
-}
-
+ 
 // Función para agregar un escenario al mapa
 void agregar_escenario(MapaDelEsc* mapa, Juego* esc) {
-    mapa->num_escenarios++;
-    mapa->escenarios = realloc(mapa->escenarios, mapa->num_escenarios * sizeof(Juego*));
-    mapa->escenarios[mapa->num_escenarios - 1] = esc;
+    mapa->num_escena++;
+    mapa->escenarios = realloc(mapa->escenarios, mapa->num_escena * sizeof(Juego*));
+    mapa->escenarios[mapa->num_escena - 1] = esc;
     
     // Si es el primer escenario lo colocamos como el inicio de la partida
-    if (mapa->num_escenarios == 1) {
+    if (mapa->num_escena == 1) {
         mapa->inicio = esc;
     }
 }
 
 //cargar los archivos y convertir el grafo en un mapa
 MapaDelEsc* cargar_archivo() {
-    MapaDelEsc* mapa = crear_mapa();
+    MapaDelEsc* mapa = inicializar_mapa();
     
     FILE *archivo = fopen("graphquest.csv", "r");
     if (archivo == NULL) {
@@ -166,7 +138,7 @@ MapaDelEsc* cargar_archivo() {
 
     while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
         // Crear nuevo escenario
-        Juego* esc = crear_escenario(atoi(campos[0]), campos[1], campos[2]);
+        Juego* esc = inicializar_escenario(atoi(campos[0]), campos[1], campos[2]);
         
         // Procesar items
         List* items_list = split_string(campos[3], ";");
@@ -180,14 +152,14 @@ MapaDelEsc* cargar_archivo() {
             int valor = atoi(list_next(values));
             int peso = atoi(list_next(values));
             
-            esc->items[item_idx++] = crear_item(nombre, valor, peso, esc->id);
+            esc->items[item_idx++] = inicializar_item(nombre, valor, peso, esc->id);
             list_clean(values);
             free(values);
         }
         list_clean(items_list);
         free(items_list);
         
-        // Establecer conexiones
+        // Establecer vecinos
         esc->arriba = atoi(campos[4]);
         esc->abajo = atoi(campos[5]);
         esc->izquierda = atoi(campos[6]);
@@ -195,25 +167,25 @@ MapaDelEsc* cargar_archivo() {
         
         esc->es_final = atoi(campos[8]);
         
-        // Agregar al mapa
+        // Agregar al mapa (hacer una función para que sea menos ruido visual y me confuna menos)
         agregar_escenario(mapa, esc);
     }
     
     fclose(archivo);
     
-    // falta establecer conexiones entre escenarios
-    for (int i = 0; i < mapa->num_escenarios; i++) {
+    // falta establecer vecinos entre escenarios
+    for (int i = 0; i < mapa->num_escena; i++) {
         Juego* actual = mapa->escenarios[i];
-        // reservar espacio para 4 conexiones (arriba, abajo, izquierda, derecha)
-        actual->conexiones = malloc(4 * sizeof(Juego*));
+        // reservar espacio para 4 vecinos (arriba, abajo, izquierda, derecha)
+        actual->vecinos = malloc(4 * sizeof(Juego*));
         
         // buscar escenarios vecinos
-        for (int j = 0; j < mapa->num_escenarios; j++) {
-            Juego* otro = mapa->escenarios[j];
-            if (otro->id == actual->arriba) actual->conexiones[0] = otro;
-            if (otro->id == actual->abajo) actual->conexiones[1] = otro;
-            if (otro->id == actual->izquierda) actual->conexiones[2] = otro;
-            if (otro->id == actual->derecha) actual->conexiones[3] = otro;
+        for (int j = 0; j < mapa->num_escena; j++) {
+            Juego* actual_escenarios = mapa->escenarios[j];
+            if (actual_escenarios->id == actual->arriba) actual->vecinos[0] = actual_escenarios;
+            if (actual_escenarios->id == actual->abajo) actual->vecinos[1] = actual_escenarios;
+            if (actual_escenarios->id == actual->izquierda) actual->vecinos[2] = actual_escenarios;
+            if (actual_escenarios->id == actual->derecha) actual->vecinos[3] = actual_escenarios;
         }
     }
     printf("El archivo se a cargado correctamente\n");
@@ -280,12 +252,11 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     if (list_first(datos_jugador->inventario) == NULL) {
         printf("Inventario vacío.\n");
     } else {
-        // Esto es correcto porque inventario es List*
-        for(Item* item = list_first(datos_jugador->inventario); 
-            item != NULL; 
-            item = list_next(datos_jugador->inventario)) {
+        for(Item* item_inventaro = list_first(datos_jugador->inventario); 
+            item_inventaro != NULL; 
+            item_inventaro = list_next(datos_jugador->inventario)) {
             printf("- %s (Valor: %d, Peso: %d)\n", 
-                   item->nombre, item->valor, item->peso);
+                   item_inventaro->nombre, item_inventaro->valor, item_inventaro->peso);
         }
     }
     
@@ -365,6 +336,7 @@ void recoger_items(Jugador* datos_jugador, Map* esce_ID){
 
 }*/
 
+//nada que ver, falta arreglar
 void recoger_items(Jugador* jugador, const char* nombre_item) {
     Juego* escenario = jugador->actual;
     Item* item_encontrado = NULL;
@@ -384,11 +356,6 @@ void recoger_items(Jugador* jugador, const char* nombre_item) {
         return;
     }
     
-    // Verificar peso máximo (ejemplo: 100)
-    if (jugador->totalPeso + item_encontrado->peso > 100) {
-        printf("¡No puedes cargar más peso! (Peso actual: %d/100)\n", jugador->totalPeso);
-        return;
-    }
     
     // Agregar al inventario
     list_pushBack(jugador->inventario, item_encontrado);
@@ -401,94 +368,54 @@ void recoger_items(Jugador* jugador, const char* nombre_item) {
     }
     escenario->num_items--;
     
-    printf("¡Has recogido %s! (+%d pts, +%d kg)\n", 
+    printf("¡Has recogido %s! puntaje: %d , peso: %d )\n", 
            nombre_item, item_encontrado->valor, item_encontrado->peso);
 }
-/*
-void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego){
-    Juego* actual = datos_jugador->actual;
+
+
+//avanza en una dirccion a la otra direccion(aqui necesito los vecinos)
+void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
     //mostrar las direcciones disponibles, preguntar al usuario si desea
     printf("Direcciones posibles desde este escenario:\n");
-    if (actual!= -1) printf("Arriba es: (1)\n");
-    if (actual->abajo != -1) printf("Abajo es: (2)\n");
-    if (actual->izquierda != -1) printf("Izquierda es: (3)\n");
-    if (actual->derecha != -1) printf("Derecha es: (4)\n\n");
+    if (datos_jugador->actual->arriba != -1) printf("Arriba es: (1)\n");
+    if (datos_jugador->actual->abajo != -1) printf("Abajo es: (2)\n");
+    if (datos_jugador->actual->izquierda != -1) printf("Izquierda es: (3)\n");
+    if (datos_jugador->actual->derecha != -1) printf("Derecha es: (4)\n\n");
     printf("seleccione el numero de la direccion si desea avanzar en esa dirección\n");
 
     char direccion;
     scanf(" %c", &direccion);
-    int id_de_la_direccion = -1;//colocar la id de la direccion que elegimos
-    
-    switch (direccion) {
-        case '1':
-            id_de_la_direccion = actual->arriba;
-            printf("Has avanzado a la dirección 'ARRIBA'\n");
-            break;
-        case '2':
-            id_de_la_direccion = actual->abajo;
-            printf("Has avanzado a la dirección 'ABAJO'\n"); 
-            break;
-        case '3':
-            id_de_la_direccion = actual->izquierda; 
-            printf("Has avanzado a la dirección 'IZQUIERDA'\n");
-            break;
-        case '4':
-            id_de_la_direccion =actual->derecha;
-            printf("Has avanzado a la dirección 'DERECHA'\n"); 
-            break;
-        default:
-            printf("ha ingresado una dirección inválida\n");
-            
-    }
-    
-    if(id_de_la_direccion == -1){
-        printf("No hay direcciones disponibles para este escenario\n");
-    }
-    //convertir id_de_la_direccion a string ya que primero lo use como número para las direcciones y ahora lo debo 
-    //usar para cambiar de escenario
-    char id_direccion_str[100];
-    snprintf(id_direccion_str, sizeof(id_direccion_str), "%d", id_de_la_direccion);
+    //int id_de_la_direccion = -1;//esto me daba error, ya no
 
-    MapPair* next = map_search(mapa_juego, id_direccion_str);
-    if (next == NULL){
-       printf("No se a encontrado el escenaro con ID: %s\n", id_direccion_str);
-       return;
-    }
-    datos_jugador->actual = (Juego*)next->value;
-    datos_jugador->tiempo --;
-
-}*/
-
-// Versión CORREGIDA
-void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego, int direccion) {
     Juego* escenario_actual = datos_jugador->actual;
-    Juego* siguiente = NULL;
-    
-    // Determinar dirección
+    Juego* siguiente = NULL;//si elige una direccion y no es null, la muestra, si no, no.
     switch(direccion) {
-        case 1: // Arriba
-            siguiente = escenario_actual->conexiones[0];
+        case '1': //arriba
+            siguiente = escenario_actual->vecinos[0];
             break;
-        case 2: // Abajo
-            siguiente = escenario_actual->conexiones[1];
+        case '2': //abajo
+            siguiente = escenario_actual->vecinos[1];
             break;
-        case 3: // Izquierda
-            siguiente = escenario_actual->conexiones[2];
+        case '3': //izquierda
+            siguiente = escenario_actual->vecinos[2];
             break;
-        case 4: // Derecha
-            siguiente = escenario_actual->conexiones[3];
+        case '4': //derecha
+            siguiente = escenario_actual->vecinos[3];
             break;
         default:
             printf("Dirección no válida\n");
             return;
     }
     
+    //buscar en pinterest ideas de cque dice un juego, me estafaron :(
     if(siguiente != NULL) {
         datos_jugador->actual = siguiente;
         printf("\nHas llegado a: %s\n", siguiente->nombre);
     } else {
         printf("\n¡No puedes avanzar en esa dirección!\n");
     }
+
+    //falta lo del tiempo
 }
 
 int main() {
@@ -523,7 +450,7 @@ int main() {
                 
                 // Liberar mapa anterior si existe
                 if(mapa_del_juego != NULL) {
-                    liberar_mapa(mapa_del_juego);
+                    free(mapa_del_juego);//free_map(mapa_del_juego);
                 }
                 
                 mapa_del_juego = cargar_archivo();
@@ -578,29 +505,10 @@ int main() {
                                 
                             case '3':
                                 limpiarPantalla();
-                                printf("Direcciones disponibles:\n");
-                                if (datos_jugador->actual->arriba != -1) printf("1) Arriba\n");
-                                if (datos_jugador->actual->abajo != -1) printf("2) Abajo\n");
-                                if (datos_jugador->actual->izquierda != -1) printf("3) Izquierda\n");
-                                if (datos_jugador->actual->derecha != -1) printf("4) Derecha\n");
-                                
-                                int direccion;
-                                printf("Seleccione dirección: ");
-                                scanf("%d", &direccion);
-                                avanzar_una_direccion(datos_jugador, mapa_del_juego, direccion);
+                                avanzar_una_direccion(datos_jugador, mapa_del_juego);
                                 break;
                                 
                             case '4':
-                                // Reiniciar partida
-                                datos_jugador->actual = mapa_del_juego->inicio;
-                                // Limpiar inventario
-                                while(list_first(datos_jugador->inventario) != NULL) {
-                                    Item* item = list_popFront(datos_jugador->inventario);
-                                    liberar_item(item);
-                                }
-                                datos_jugador->totalPeso = 0;
-                                datos_jugador->totalPuntaje = 0;
-                                printf("Partida reiniciada.\n");
                                 break;
                         }
                         
@@ -622,7 +530,7 @@ int main() {
 
     // Liberar memoria
     if(mapa_del_juego != NULL) {
-        liberar_mapa(mapa_del_juego);
+        free(mapa_del_juego);//free_map(mapa_del_juego);
     }
     
     return 0;
