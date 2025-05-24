@@ -61,6 +61,9 @@ int _is_equal(Map *map, MapPair *pair, void *key) {
            !map->lower_than(key, pair->key)));
 }
 
+
+
+
 MapPair *map_remove(Map *map, void *key) {
   for (MapPair *pair = list_first(map->ls); pair != NULL;
        pair = list_next(map->ls))
