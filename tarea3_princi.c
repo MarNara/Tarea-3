@@ -392,37 +392,57 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
             printf("Dirección no válida\n");
             return;
     }
-    
-    //buscar en pinterest ideas de cque dice un juego, me estafaron :(
-    if(siguiente != NULL) {
-        datos_jugador->actual = siguiente;
-        printf("\nHas llegado a: %s\n", siguiente->nombre);
-    } else {
+
+    if(siguiente == NULL) {
         printf("\n¡No puedes avanzar en esa dirección!\n");
     }
 
+    // esto actualiza la posicion nueva
+    datos_jugador->actual = siguiente;
+    printf("\nHas llegado a: %s\n", siguiente->nombre);
+
+
+    //buscar en pinterest ideas de cque dice un juego, me estafaron :(
+    
+    datos_jugador->actual = siguiente;
+    printf("\nHas llegado a: %s\n", siguiente->nombre);
+    
+    // calcular el tiempo
+    datos_jugador->tiempo -= ((datos_jugador->totalPeso + 1) / 10);
+    if(datos_jugador->tiempo == 0){
+        printf("Tu tiempo se acabó, debes reiniciar la partida\n");
+        return;
+    }
+
+
+
+    // Revisar si se llegó al escenario final
+    if (datos_jugador->actual->es_final == 1 && datos_jugador->tiempo > 0) {
+        printf("\n¡Has llegado al escenario final!\n");
+        printf("\n=== TU INVENTARIO ===\n\n");
+        if (list_first(datos_jugador->inventario) == NULL) {
+            printf("Inventario vacío.\n");
+        } else {
+            Item* item_inventaro = list_first(datos_jugador->inventario);
+            while (item_inventaro != NULL) {
+                printf("-Item: %s\n", item_inventaro->nombre);
+                item_inventaro = list_next(datos_jugador->inventario);
+            }
+            printf("Puntaje Total: %d, Peso Total: %d\n", datos_jugador->totalPuntaje, datos_jugador->totalPeso);
+        }
+    }else{
+        if(datos_jugador->actual->es_final == 0 && datos_jugador > 0){
+            printf("Aun no has llegado al final de este laberinto\n");
+
+        }
+
+    }
     //falta lo del tiempo
     /*- Se actualiza el escenario actual, el inventario se conserva, y se descuenta el tiempo usado según el peso total transportado:
     
 - Si se alcanza el escenario final, se muestran los elementos del inventario y el **puntaje final.**
 - Si el **tiempo se agota**, se muestra un mensaje de derrota.*/
 
-    datos_jugador->tiempo -= (datos_jugador->totalPeso + 1) / 10;
-    if(datos_jugador->actual->es_final == 1 && datos_jugador->tiempo > 0){
-        printf("\nHas llegado al Escenario final\n");
-        printf("\n=== TU INVENTARIO ===\n\n");
-        if (list_first(datos_jugador->inventario) == NULL) {
-            printf("Inventario vacío.\n");
-        } else {
-            Item* item_inventaro = list_first(datos_jugador->inventario);
-            while (item_inventaro != NULL){
-                printf("-Item: %s\n", item_inventaro->nombre);
-                item_inventaro = list_next(datos_jugador->inventario);
-            }
-            printf("Puntaje Total: %d, Peso Total: %d\n", datos_jugador->totalPuntaje, datos_jugador->totalPeso);
-        }
-
-    }
 }
 
 int main() {
