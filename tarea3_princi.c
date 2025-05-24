@@ -38,7 +38,7 @@ struct Juego {
     Juego* abajo;
     Juego* izquierda;
     Juego* derecha;
-    char es_final;
+    int es_final;
 
     //temporal, para leer
     int temp_arriba;
@@ -77,7 +77,7 @@ Item* inicializar_item(char* nombre, int valor, int peso, int id_DelItem) {
     return item;
 }
 // esta funcion inicializa la estructura item
-Juego* inicializar_escenario(int id, char* nombre, char* descripcion, char* final) {
+Juego* inicializar_escenario(int id, char* nombre, char* descripcion) {
     Juego* esc = (Juego*)malloc(sizeof(Juego));
     esc->id = id;
     esc->nombre = strdup(nombre);
@@ -88,7 +88,7 @@ Juego* inicializar_escenario(int id, char* nombre, char* descripcion, char* fina
     esc->abajo = NULL;
     esc->izquierda = NULL;
     esc->derecha = NULL;
-    esc->es_final = strdup(final);
+    esc->es_final =  0,
     //esc->vecinos = NULL;
     esc->temp_arriba = 0;
     esc->temp_abajo = 0;
@@ -150,7 +150,7 @@ MapaDelEsc* cargar_archivo() {
 
     while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
         // Crear nuevo escenario
-        Juego* esc = inicializar_escenario(atoi(campos[0]), campos[1], campos[2], campos[8]);
+        Juego* esc = inicializar_escenario(atoi(campos[0]), campos[1], campos[2]);
         
         // Procesar items
         List* items_list = split_string(campos[3], ";");
@@ -411,10 +411,20 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
 
     datos_jugador->tiempo = (datos_jugador->totalPeso + 1) / 10;
 
-    if(escenario_actual->es_final == 'Si' && datos_jugador->tiempo > 0){
+    if(escenario_actual->es_final == 1 && datos_jugador->tiempo > 0){
         printf("\nHas llegado al Escenario final\n");
-        printf("----------- Tu Inventario -----------\n\n");
-        
+        printf("\n=== TU INVENTARIO ===\n\n");
+        if (list_first(datos_jugador->inventario) == NULL) {
+            printf("Inventario vacío.\n");
+        } else {
+            Item* item_inventaro = list_first(datos_jugador->inventario);
+            while (item_inventaro != NULL){
+                printf("-Item: %s\n", item_inventaro->nombre);
+                item_inventaro = list_next(datos_jugador->inventario);
+            }
+            printf("Puntaje Total: %d, Peso Total: %d\n", datos_jugador->totalPuntaje, datos_jugador->totalPeso);
+        }
+
     }
 }
 
