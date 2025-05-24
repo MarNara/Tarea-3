@@ -24,9 +24,7 @@ typedef struct {
     int id_item;
 } Item;
 
-
 typedef struct Juego Juego;
-
 // estructura del juego, los nodo/escenario
 struct Juego {
     int id;
@@ -409,9 +407,8 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
 - Si se alcanza el escenario final, se muestran los elementos del inventario y el **puntaje final.**
 - Si el **tiempo se agota**, se muestra un mensaje de derrota.*/
 
-    datos_jugador->tiempo = (datos_jugador->totalPeso + 1) / 10;
-
-    if(escenario_actual->es_final == 1 && datos_jugador->tiempo > 0){
+    datos_jugador->tiempo -= (datos_jugador->totalPeso + 1) / 10;
+    if(datos_jugador->actual->es_final == 1 && datos_jugador->tiempo > 0){
         printf("\nHas llegado al Escenario final\n");
         printf("\n=== TU INVENTARIO ===\n\n");
         if (list_first(datos_jugador->inventario) == NULL) {
