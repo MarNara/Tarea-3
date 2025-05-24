@@ -227,12 +227,11 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     puts("     Estado Actual");
     puts("========================================");
     
-    // 1) Información del escenario
+    // 1)
     printf("Nombre Del Escenario: %s\n", actual->nombre);
     printf("Descripción: %s\n\n", actual->descripcion);
     
-    // 2) Items disponibles
-    // Mostrar items (usando array en lugar de List)
+    // 2) 
     printf("\nItems disponibles:\n");
     if (actual->num_items == 0) {
         printf("No hay items en este escenario.\n");
@@ -244,10 +243,10 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
         }
     }
     
-    // 3) Tiempo restante
+    // 3) 
     printf("\nTiempo restante: %d\n", datos_jugador->tiempo);
     
-    // 4) Inventario
+    // 4)
     printf("\n=== TU INVENTARIO ===\n");
     if (list_first(datos_jugador->inventario) == NULL) {
         printf("Inventario vacío.\n");
@@ -260,7 +259,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
         }
     }
     
-    // 5) Direcciones disponibles
+    // 5) 
     printf("\n------ Direcciones disponibles ------\n");
     if (actual->arriba != -1) printf("1) Arriba\n");
     if (actual->abajo != -1) printf("2) Abajo\n");
@@ -421,15 +420,15 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
 int main() {
     int opcion;
     int archivo_cargado = 0;
-    MapaDelEsc* mapa_del_juego = NULL;  // Inicializado como NULL
+    MapaDelEsc* mapa_del_juego = NULL;  //inicializar como NULL
     
-    // Inicializar jugador con valores por defecto
+    // inicializar jugador 
     Jugador* datos_jugador = (Jugador*)malloc(sizeof(Jugador));
     if(datos_jugador == NULL) return EXIT_FAILURE;
     
     datos_jugador->tiempo = 10;
     datos_jugador->inventario = list_create();
-    datos_jugador->actual = NULL;  // Inicialmente no hay escenario
+    datos_jugador->actual = NULL;  //no hay escenario
     datos_jugador->totalPeso = 0;
     datos_jugador->totalPuntaje = 0; 
     
@@ -448,9 +447,9 @@ int main() {
                 limpiarPantalla();
                 printf("\n--- Cargando laberinto desde archivo CSV ---\n");
                 
-                // Liberar mapa anterior si existe
+                // liberar mapa anterior si existe
                 if(mapa_del_juego != NULL) {
-                    free(mapa_del_juego);//free_map(mapa_del_juego);
+                    free(mapa_del_juego);
                 }
                 
                 mapa_del_juego = cargar_archivo();
@@ -494,13 +493,10 @@ int main() {
                             case '1':
                                 limpiarPantalla();
                                 //recoger_items(datos_jugador, nombre_item);
-                                
                                 break;
                                 
                             case '2':
                                 limpiarPantalla();
-                                //dejar_item();
-                                
                                 break;
                                 
                             case '3':
@@ -530,7 +526,7 @@ int main() {
 
     // Liberar memoria
     if(mapa_del_juego != NULL) {
-        free(mapa_del_juego);//free_map(mapa_del_juego);
+        free(mapa_del_juego);
     }
     
     return 0;
