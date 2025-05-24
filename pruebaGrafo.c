@@ -274,7 +274,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     puts("     Estado Actual");
     puts("========================================");
     
-    // 1) 
+    // 1)
     printf("Nombre Del Escenario: %s\n", actual->nombre);
     printf("Descripción: %s\n\n", actual->descripcion);
     
@@ -285,24 +285,22 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     } else {
         for (int i = 0; i < actual->num_items; i++) {
             Item* item = actual->items[i];
-            printf("- %s (Valor: %d, Peso: %d)\n", 
-                   item->nombre, item->valor, item->peso);
+            printf("-Item: %s Valor: %d, Peso: %d\n", item->nombre, item->valor, item->peso);
         }
     }
     
     // 3) 
     printf("\nTiempo restante: %d\n", datos_jugador->tiempo);
     
-    // 4) 
+    // 4)
     printf("\n=== TU INVENTARIO ===\n");
     if (list_first(datos_jugador->inventario) == NULL) {
         printf("Inventario vacío.\n");
     } else {
-        for(Item* item = list_first(datos_jugador->inventario); 
-            item != NULL; 
-            item = list_next(datos_jugador->inventario)) {
-            printf("- %s (Valor: %d, Peso: %d)\n", 
-                   item->nombre, item->valor, item->peso);
+        for(Item* item_inventaro = list_first(datos_jugador->inventario); 
+            item_inventaro != NULL; 
+            item_inventaro = list_next(datos_jugador->inventario)) {
+            printf("-Item %s Valor: %d, Peso: %d\n", item_inventaro->nombre, item_inventaro->valor, item_inventaro->peso);
         }
     }
     
@@ -314,66 +312,165 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     if (actual->derecha != NULL) printf("4) Derecha\n");
 }
 
-
-
-void recoger_items(Jugador* jugador, const char* nombre_item) {
-    Juego* escenario = jugador->actual;
-    Item* item_encontrado = NULL;
-    int indice_item = -1;
+/*
+void recoger_items(Jugador* datos_jugador, Map* esce_ID){
+    /*analisis:
+    para recoger un item primero debo mostrarle al usuario el disponible en el escenario junto a su id
+    y luego el usuario si lo desea debe colocar el numero del id para tomarlo.
     
-    // Buscar el item por nombre
-    for (int i = 0; i < escenario->num_items; i++) {
-        if (strcmp(escenario->items[i]->nombre, nombre_item) == 0) {
-            item_encontrado = escenario->items[i];
-            indice_item = i;
-            break;
+    para realizar lo siguiente debo ingresar los items al inventario con list_pushback y si hay más de un item en el
+    escenario debo pedirle al ususario que separe los id por un espacio para agregarlos como en el leer el archivo con
+    List* items_string = split_string(campos[3], ";");, pero con especificaciones diferentes, ya que yo quiero separar el espacio:  
+    split_string(id_ingresadoPorJugador, " ");
+    
+    Juego* actual = datos_jugador->actual;
+    //recordar que si le coloco else puede no termin ar su ejecucion y darme error
+    if(actual->num_items == 0){
+        printf("No hay items disponibles en este escenario\n");
+        return;
+    }
+    
+    //mostrar los items disponibles
+    puts("========================================");
+    puts("     Item(s) disponibles");
+    puts("========================================");
+    Item* contenido_item = actual->items[0];//el primer elemento del arreglo
+    for(int i = 0; i < actual->num_items; i++){
+        printf("ID: %s,  Item: %s,  Valor: %s,  Peso: %s\n",contenido_item->id_item, contenido_item->nombre, contenido_item->valor, contenido_item->peso);
+    } 
+
+    //falta agregar items y ver si lo agrego a mi inventario debo eliminarlo del "juego"
+    //preguntar al jugador
+    printf("Ingrese el/los id(s) que desea ingresar \n");
+    char id_ingresadoPorJugador[100];
+    getchar();
+    fgets(id_ingresadoPorJugador, sizeof(id_ingresadoPorJugador), stdin);
+
+    //separar los ids con la función del profe
+    List* lis_items_elegido = split_string(id_ingresadoPorJugador, " ");
+
+    //guardar los items en el inventario
+    List* new_list_items_escenario = list_create();
+    Item* contenido_item = datos_jugador->actual->items[0];
+
+    for (int i = 0; i < datos_jugador->actual->num_items; i++) {
+        Item* item = datos_jugador->actual->items[i];
+        int item_tomado = 0;//actua como false
+        int* id_ids = list_first(lis_items_elegido);//sacar id de a uno
+        while(id_ids != NULL){
+            int id_ptr = *id_ids;
+            if(datos_jugador->actual->id == id_ptr){
+                list_pushBack(datos_jugador->inventario, id_ptr);
+                item_tomado = 1;//actua como true
+                break;
+            }
+            id_ids = list_next(lis_items_elegido);
+        
+        }
+        if(item_tomado == 0){
+            list_pushBack(new_list_items_escenario, datos_jugador->actual->items);
         }
     }
-    
-    if (item_encontrado == NULL) {
-        printf("Item no encontrado: %s\n", nombre_item);
+    //actualizar los items del juego, como el jugador toma uno, ese item desaparece de los items del juego
+    actual->items = new_list_items_escenario;
+    datos_jugador->tiempo --;
+
+    printf("item agregado al inventario: %s\n", datos_jugador->inventario);
+    printf("tiempo restante del jugador: %s\n", datos_jugador->tiempo);
+
+}*/
+
+//nada que ver, falta arreglar
+void recoger_items(Jugador* datos_jugador) {
+    Juego* actual = datos_jugador->actual;
+
+    if (actual->num_items == 0) {
+        printf("No hay items disponibles en este escenario\n");
         return;
     }
-    
-    // Verificar peso máximo (ejemplo: 100)
-    if (jugador->totalPeso + item_encontrado->peso > 100) {
-        printf("¡No puedes cargar más peso! (Peso actual: %d/100)\n", jugador->totalPeso);
-        return;
+
+    puts("========================================");
+    puts("     Item(s) disponibles");
+    puts("========================================");
+    for (int i = 0; i < actual->num_items; i++) {
+        Item* item = actual->items[i];
+        printf("- Item: %s | Valor: %d | Peso: %d\n", item->nombre, item->valor, item->peso);
     }
-    
-    // Agregar al inventario
-    list_pushBack(jugador->inventario, item_encontrado);
-    jugador->totalPeso += item_encontrado->peso;
-    jugador->totalPuntaje += item_encontrado->valor;
-    
-    // Eliminar del escenario
-    for (int i = indice_item; i < escenario->num_items - 1; i++) {
-        escenario->items[i] = escenario->items[i + 1];
+
+    printf("\nIngrese los nombres de los ítems que desea recoger, separados por ';':\n");
+
+    char entrada[256];
+    getchar(); // limpiar buffer
+    fgets(entrada, sizeof(entrada), stdin);
+    entrada[strcspn(entrada, "\n")] = '\0'; // quitar el salto de línea
+
+    // Obtener lista de nombres
+    List* nombres_items = split_string(entrada, ";");
+    char* nombre = list_first(nombres_items);
+    while(nombre != NULL) {
+        Item* item_encontrado = NULL;
+        int indice_item = -1;
+
+        for (int i = 0; i < actual->num_items; i++) {
+            if (strcmp(actual->items[i]->nombre, nombre) == 0) {
+                item_encontrado = actual->items[i];
+                indice_item = i;
+                break;
+            }
+        }
+
+        if (item_encontrado == NULL) {
+            printf("No se encontró el ítem: '%s'\n", nombre);
+            continue;
+        }
+
+        // Agregar al inventario
+        list_pushBack(datos_jugador->inventario, item_encontrado);
+        datos_jugador->totalPeso += item_encontrado->peso;
+        datos_jugador->totalPuntaje += item_encontrado->valor;
+
+        // Eliminar del escenario
+        for (int j = indice_item; j < actual->num_items - 1; j++) {
+            actual->items[j] = actual->items[j + 1];
+        }
+        actual->num_items--;
+
+        printf("Recogiste: %s | Puntaje: %d | Peso: %d\n", item_encontrado->nombre, item_encontrado->valor, item_encontrado->peso);
+        nombre = list_next(nombres_items);
     }
-    escenario->num_items--;
-    
-    printf("¡Has recogido %s! (+%d pts, +%d kg)\n", 
-           nombre_item, item_encontrado->valor, item_encontrado->peso);
+
+    list_clean(nombres_items); // libera memoria si tu lista lo soporta
 }
 
 
 
-void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego, int direccion) {
+//avanza en una dirccion a la otra direccion(aqui necesito los vecinos)
+void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
+    //mostrar las direcciones disponibles, preguntar al usuario si desea
+    printf("Direcciones posibles desde este escenario:\n");
+    if (datos_jugador->actual->arriba != NULL) printf("Arriba es: (1)\n");
+    if (datos_jugador->actual->abajo != NULL) printf("Abajo es: (2)\n");
+    if (datos_jugador->actual->izquierda != NULL) printf("Izquierda es: (3)\n");
+    if (datos_jugador->actual->derecha != NULL) printf("Derecha es: (4)\n\n");
+    printf("seleccione el numero de la direccion si desea avanzar en esa dirección\n");
+
+    char direccion;
+    scanf(" %c", &direccion);
+    //int id_de_la_direccion = -1;//esto me daba error, ya no
+
     Juego* escenario_actual = datos_jugador->actual;
-    Juego* siguiente = NULL;
-    
-    // Determinar dirección
+    Juego* siguiente = NULL;//si elige una direccion y no es null, la muestra, si no, no.
     switch(direccion) {
-        case 1: // Arriba
+        case '1': //arriba
             siguiente = escenario_actual->arriba;
             break;
-        case 2: // Abajo
+        case '2': //abajo
             siguiente = escenario_actual->abajo;
             break;
-        case 3: // Izquierda
+        case '3': //izquierda
             siguiente = escenario_actual->izquierda;
             break;
-        case 4: // Derecha
+        case '4': //derecha
             siguiente = escenario_actual->derecha;
             break;
         default:
@@ -381,20 +478,23 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego, int d
             return;
     }
     
+    //buscar en pinterest ideas de cque dice un juego, me estafaron :(
     if(siguiente != NULL) {
         datos_jugador->actual = siguiente;
         printf("\nHas llegado a: %s\n", siguiente->nombre);
     } else {
         printf("\n¡No puedes avanzar en esa dirección!\n");
     }
+
+    //falta lo del tiempo
 }
 
 int main() {
     int opcion;
     int archivo_cargado = 0;
-    MapaDelEsc* mapa_del_juego = NULL;  // inicializar como NULL
+    MapaDelEsc* mapa_del_juego = NULL;  //inicializar como NULL
     
-    //inicializar jugador
+    // inicializar jugador 
     Jugador* datos_jugador = (Jugador*)malloc(sizeof(Jugador));
     if(datos_jugador == NULL) return EXIT_FAILURE;
     
@@ -419,7 +519,7 @@ int main() {
                 limpiarPantalla();
                 printf("\n--- Cargando laberinto desde archivo CSV ---\n");
                 
-                // Liberar mapa anterior si existe
+                // liberar mapa anterior si existe
                 if(mapa_del_juego != NULL) {
                     free(mapa_del_juego);
                 }
@@ -464,28 +564,17 @@ int main() {
                         switch (opcion2) {
                             case '1':
                                 limpiarPantalla();
-                                //recoger_items(datos_jugador, nombre_item);
-                                
+                                recoger_items(datos_jugador);
                                 break;
                                 
                             case '2':
                                 limpiarPantalla();
-                                
-                                
+                                //descartar_items(datos_jugador);
                                 break;
                                 
                             case '3':
                                 limpiarPantalla();
-                                printf("Direcciones disponibles:\n");
-                                if (datos_jugador->actual->arriba != NULL) printf("1) Arriba\n");
-                                if (datos_jugador->actual->abajo != NULL) printf("2) Abajo\n");
-                                if (datos_jugador->actual->izquierda != NULL) printf("3) Izquierda\n");
-                                if (datos_jugador->actual->derecha != NULL) printf("4) Derecha\n");
-                                
-                                int direccion;
-                                printf("Seleccione dirección: ");
-                                scanf("%d", &direccion);
-                                avanzar_una_direccion(datos_jugador, mapa_del_juego, direccion);
+                                avanzar_una_direccion(datos_jugador, mapa_del_juego);
                                 break;
                                 
                             case '4':
