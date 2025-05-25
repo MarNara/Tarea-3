@@ -641,7 +641,7 @@ int main() {
                                 }
                                 return 0;
                             default:
-                                printf("Opción no válida. Intente nuevamente.\n");
+                                printf("Opcion no valida. Intente nuevamente.\n");
                             presioneTeclaParaContinuar();
                             limpiarPantalla();
                         }

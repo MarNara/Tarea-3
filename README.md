@@ -34,38 +34,166 @@ Abre el archivo principal (por ejemplo, tarea2.c).
 Abre la terminal con ctrl + ñ.
 
 En la terminal bash, compila el programa con el siguiente comando :
-
-- gcc tdas/*.c tarea3.c -Wno-unused-result -o tarea3
+```bash
+gcc tdas/*.c tarea3.c -Wno-unused-result -o tarea3
+```
 Luego debe escribir lo siguiente para ejecutar la tarea:
-
- ./tarea3
+```bash
+./tarea3
+```
 Archivo para cargar canciones:
+```bash
+graphquest.csv
+```
 
-song_dataset_.csv
-las opciones que funcionan correctamente y las que no lo hacen indicando posibles causas; Las opiones que funcionan son las siguientes: (1) Cargar Canciones. (2) Buscar por Género. (3) Buscar por Artista. (4) Buscar por Tempo. (5) Crear Lista de Reproducción. (6) Agregar Canción a Lista. (7) Mostrar Canciones de una Lista . (8) Salir.
+
+### las opciones que funcionan correctamente y las que no lo hacen indicando posibles causas:
+Las opiones que funcionan son las siguientes: 
+Del menú principal: (1) Cargar Laberinto desde Archivo CSV. (2) Iniciar Partida.
+
+Del menú del juego: (1) Recoger Ítem(s). (2) Descartar Ítem(s). (3) Avanzar en una Dirección. (4) Reiniciar Partida. (5) Salir.
 
 ------OBSERVACIÓN------
-
-Al pasar a otra opcion debo presionar cualquier tecla.
+Al pasar a otra opcion debo presionar enter a veces una vez y aveces dos veces.
 Sería bueno implementar una función para controlar casos donde el nombre del un item tenga letras minusculas o mayusculas pero sean la misma palabra, como por ejemplo: Cuchillo = cuchillo.
-Tambien estaria bien agregar un buscar por pagina que me mueva directamente a la pagina.
-------Nota------
+También implementar una biblioteca pero de las que no estaba permitida para que se impriman bien las palabras con acentos.
 
-La biblioteca windows.h si bien no sale en las bibliotecas standar que el profesor dijo que se podian ocupar, la unica funcion que ocupamos fue "SetConsoleOutputCP(65001);" que lo que hace es cambiar al encoding a utf-8, de esta manera lograbamos hacer que los acentos se mostraran correctamente en la terminal.
-Ejemplos mostrando como interactuar con la aplicación.
+## Ejemplos mostrando como interactuar con la aplicación.
+### Para menú principal
 ----------------------- EJEMPLO (1) Cargar Canciones ---------------------------
+´´´bash
+===== MENU PRINCIPAL =====
+1. Cargar Laberinto desde Archivo CSV
+2. Iniciar Partida
+Seleccione una opcion: 1
+´´´
+//despues del enter
+´´´bash
+--- Cargando laberinto desde archivo CSV ---
+Ingrese el nombre del archivo CSV:
+graphquest.csv
+El archivo se a cargado correctamente
+Presione una tecla para continuar...
+´´´
+# ----------------------- EJEMPLO (2) Buscar por Género --------------------------- #
+´´´bash
+===== MENU PRINCIPAL =====
+1. Cargar Laberinto desde Archivo CSV
+2. Iniciar Partida
+Seleccione una opcion: 2
+´´´
+//despues de presionar enter
+´´´bash
+========================================
+     Estado Actual
+========================================
+NOMBRE DEL ESCENARIO: Entrada principal
+DESCRIPCION: Una puerta rechinante abre paso a esta mansion olvidada por los dioses y los conserjes. El aire huele a humedad y a misterios sin resolver.
 
------------------------ EJEMPLO (2) Buscar por Género ---------------------------
+==== ITEMS DISPONIBLES ====
+No hay items en este escenario.
 
------------------------ EJEMPLO (3) Buscar por Artista ---------------------------
+Tiempo restante: 10
 
------------------------ EJEMPLO (4) Buscar por Tempo ---------------------------
+==== TU INVENTARIO ====
+Inventario vacio.
 
------------------------ Ejemplo (5) Crear Lista de Reproducción ---------------------------
+==== DIRECCION(ES) DISPONIBLE(S) ====
+2) Abajo
 
------------------------ Ejemplo (7) Mostrar Canciones de una Lista ---------------------------
+***** MENU DEL JUEGO ******
+========================================
+     Opciones del Jugador
+========================================
+1) Recoger Item(s)
+2) Descartar Item(s)
+3) Avanzar en una Direccion
+4) Reiniciar Partida
+5) Salir
+Ingrese su opcion:
+´´´
+### Para menú del juego
+----------------------- EJEMPLO (1) Buscar por Artista ---------------------------
+//después del enter
+´´´bash
+========================================
+     Item(s) disponible(s)
+========================================
+-Item: Cuchillo, Valor: 3, Peso: 1
+-Item: Pan, Valor: 2, Peso: 1
 
------------------------ Ejemplo (8) Salir ---------------------------
+Ingrese el nombre del Item que desea llevar, si es mas de uno separar con ';':
+Cuchillo; Pan
+> Recogiste: Cuchillo, Valor: 3 ,Peso: 1
+> Recogiste: Pan, Valor: 2 ,Peso: 1
+Presione una tecla para continuar...
+´´´
+----------------------- EJEMPLO (2) Buscar por Tempo ---------------------------
+//despues del enter
+´´´bash
+=== TU INVENTARIO ===
+-Item: Cuchillo
+-Item: Pan
+-Item: Copa dorada
+Puntaje Obtenido: 13, Peso Total: 5
 
-Ingrese su opción: 8
-Saliendo del programa...
+Ingrese el nombre del Item que desea descartar, si es mas de uno separar con ';':
+Cuchillo
+> Descartaste: Cuchillo, Valor: 3, Peso: 1
+Presione una tecla para continuar...
+´´´
+
+----------------------- Ejemplo (3) Crear Lista de Reproducción ---------------------------
+//después del enter
+´´´bash
+Direcciones posibles desde este escenario:
+Abajo es: (2)
+Seleccione el numero de la direccion a la que desea avanzar:
+2
+
+Has llegado a: Cocina
+Presione una tecla para continuar...
+´´´
+----------------------- Ejemplo (4) Mostrar Canciones de una Lista ---------------------------
+´´´bash
+Ingrese su opcion: 4
+//despues del enter
+Has reiniciado la partida con exito
+Presione una tecla para continuar...
+´´´
+Despues de esto la partida se ve como cuando se inicia la partida con el dos del menú principal, así:
+´´´bash
+========================================
+     Estado Actual
+========================================
+NOMBRE DEL ESCENARIO: Entrada principal
+DESCRIPCION: Una puerta rechinante abre paso a esta mansion olvidada por los dioses y los conserjes. El aire huele a humedad y a misterios sin resolver.
+
+==== ITEMS DISPONIBLES ====
+No hay items en este escenario.
+
+Tiempo restante: 10
+
+==== TU INVENTARIO ====
+Inventario vacio.
+
+==== DIRECCION(ES) DISPONIBLE(S) ====
+2) Abajo
+
+***** MENU DEL JUEGO ******
+========================================
+     Opciones del Jugador
+========================================
+1) Recoger Item(s)
+2) Descartar Item(s)
+3) Avanzar en una Direccion
+4) Reiniciar Partida
+5) Salir
+Ingrese su opcion:
+´´´
+----------------------- Ejemplo (5) Salir ---------------------------
+´´´bash
+Ingrese su opcion: 5
+//despues del enter
+Saliendo del juego. ┬íHasta luego!
+´´´
