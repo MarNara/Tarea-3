@@ -33,7 +33,8 @@ Del menú principal: (1) Cargar Laberinto desde Archivo CSV. (2) Iniciar Partida
 
 Del menú del juego: (1) Recoger Item(s). (2) Descartar Item(s). (3) Avanzar en una Direccion. (4) Reiniciar Partida. (5) Salir.
 
-**------OBSERVACIÓN------**
+------OBSERVACIÓN------
+
 Al pasar a otra opcion debo presionar enter a veces una vez y aveces dos veces.
 Sería bueno implementar una función para controlar casos donde el nombre del un item tenga letras minusculas o mayusculas pero sean la misma palabra, como por ejemplo: Cuchillo = cuchillo.
 También implementar una biblioteca pero de las que no estaba permitida para que se impriman bien las palabras con acentos.
