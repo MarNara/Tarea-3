@@ -95,6 +95,9 @@ Ingrese su opcion:
 ```
 ### Para menú del juego
 **----------------------- EJEMPLO (1) Recoger Item(s) ---------------------------**
+```bash
+Ingrese su opcion: 1
+```
 //después del enter
 ```bash
 ========================================
@@ -110,6 +113,9 @@ Cuchillo; Pan
 Presione una tecla para continuar...
 ```
 **----------------------- EJEMPLO (2) Descartar Item(s) ---------------------------**
+```bash
+Ingrese su opcion: 2
+```
 //despues del enter
 ```bash
 === TU INVENTARIO ===
@@ -125,6 +131,9 @@ Presione una tecla para continuar...
 ```
 
 **----------------------- Ejemplo (3) Avanzar en una Direccion ---------------------------**
+```bash
+Ingrese su opcion: 3
+```
 //después del enter
 ```bash
 Direcciones posibles desde este escenario:
@@ -138,7 +147,10 @@ Presione una tecla para continuar...
 **----------------------- Ejemplo (4) Reiniciar Partida ---------------------------**
 ```bash
 Ingrese su opcion: 4
+```
 //despues del enter
+
+```bash
 Has reiniciado la partida con exito
 Presione una tecla para continuar...
 ```
@@ -175,6 +187,9 @@ Ingrese su opcion:
 **----------------------- Ejemplo (5) Salir ---------------------------**
 ```bash
 Ingrese su opcion: 5
+```
 //despues del enter
+
+```bash
 Saliendo del juego. ┬íHasta luego!
 ```
