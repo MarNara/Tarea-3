@@ -7,6 +7,7 @@
         "heap.h": "c",
         "extra.h": "c",
         "string.h": "c",
-        "map.h": "c"
+        "map.h": "c",
+        "math.h": "c"
     }
 }
