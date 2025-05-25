@@ -61,29 +61,29 @@ También implementar una biblioteca pero de las que no estaba permitida para que
 ## Ejemplos mostrando como interactuar con la aplicación.
 ### Para menú principal
 ----------------------- EJEMPLO (1) Cargar Canciones ---------------------------
-´´´bash
+```bash
 ===== MENU PRINCIPAL =====
 1. Cargar Laberinto desde Archivo CSV
 2. Iniciar Partida
 Seleccione una opcion: 1
-´´´
+```
 //despues del enter
-´´´bash
+```bash
 --- Cargando laberinto desde archivo CSV ---
 Ingrese el nombre del archivo CSV:
 graphquest.csv
 El archivo se a cargado correctamente
 Presione una tecla para continuar...
-´´´
+```
 # ----------------------- EJEMPLO (2) Buscar por Género --------------------------- #
-´´´bash
+```bash
 ===== MENU PRINCIPAL =====
 1. Cargar Laberinto desde Archivo CSV
 2. Iniciar Partida
 Seleccione una opcion: 2
-´´´
+```
 //despues de presionar enter
-´´´bash
+```bash
 ========================================
      Estado Actual
 ========================================
@@ -111,11 +111,11 @@ Inventario vacio.
 4) Reiniciar Partida
 5) Salir
 Ingrese su opcion:
-´´´
+```
 ### Para menú del juego
 ----------------------- EJEMPLO (1) Buscar por Artista ---------------------------
 //después del enter
-´´´bash
+```bash
 ========================================
      Item(s) disponible(s)
 ========================================
@@ -127,10 +127,10 @@ Cuchillo; Pan
 > Recogiste: Cuchillo, Valor: 3 ,Peso: 1
 > Recogiste: Pan, Valor: 2 ,Peso: 1
 Presione una tecla para continuar...
-´´´
+```
 ----------------------- EJEMPLO (2) Buscar por Tempo ---------------------------
 //despues del enter
-´´´bash
+```bash
 === TU INVENTARIO ===
 -Item: Cuchillo
 -Item: Pan
@@ -141,11 +141,11 @@ Ingrese el nombre del Item que desea descartar, si es mas de uno separar con ';'
 Cuchillo
 > Descartaste: Cuchillo, Valor: 3, Peso: 1
 Presione una tecla para continuar...
-´´´
+```
 
 ----------------------- Ejemplo (3) Crear Lista de Reproducción ---------------------------
 //después del enter
-´´´bash
+```bash
 Direcciones posibles desde este escenario:
 Abajo es: (2)
 Seleccione el numero de la direccion a la que desea avanzar:
@@ -153,16 +153,16 @@ Seleccione el numero de la direccion a la que desea avanzar:
 
 Has llegado a: Cocina
 Presione una tecla para continuar...
-´´´
+```
 ----------------------- Ejemplo (4) Mostrar Canciones de una Lista ---------------------------
-´´´bash
+```bash
 Ingrese su opcion: 4
 //despues del enter
 Has reiniciado la partida con exito
 Presione una tecla para continuar...
-´´´
+```
 Despues de esto la partida se ve como cuando se inicia la partida con el dos del menú principal, así:
-´´´bash
+```bash
 ========================================
      Estado Actual
 ========================================
@@ -190,10 +190,10 @@ Inventario vacio.
 4) Reiniciar Partida
 5) Salir
 Ingrese su opcion:
-´´´
+```
 ----------------------- Ejemplo (5) Salir ---------------------------
-´´´bash
+```bash
 Ingrese su opcion: 5
 //despues del enter
 Saliendo del juego. ┬íHasta luego!
-´´´
+```
