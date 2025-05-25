@@ -120,8 +120,10 @@ void agregar_escenario(MapaDelEsc* mapa, Juego* esc) {
 //cargar los archivos y convertir el grafo en un mapa
 MapaDelEsc* cargar_archivo() {
     MapaDelEsc* mapa = inicializar_mapa();
-    
-    FILE *archivo = fopen("graphquest.csv", "r");
+    char nombre_archivo[100];
+    printf("Ingrese el nombre del archivo CSV: \n");
+    scanf("%99s", nombre_archivo);
+    FILE *archivo = fopen(nombre_archivo, "r");
     if (archivo == NULL) {
         perror("Error al abrir el archivo");
         return mapa;
@@ -226,11 +228,11 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     puts("========================================");
     
     // 1)
-    printf("Nombre Del Escenario: %s\n", actual->nombre);
-    printf("Descripción: %s\n", actual->descripcion);
+    printf("NOMBRE DEL ESCENARIO: %s\n", actual->nombre);
+    printf("DESCRIPCIÓN: %s\n", actual->descripcion);
     
     // 2) 
-    printf("\n======= Items disponibles =======\n");
+    printf("\n==== ITEMS DISPONIBLES ====n");
     if (actual->num_items == 0) {
         printf("No hay items en este escenario.\n");
     } else {
@@ -244,7 +246,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     printf("\nTiempo restante: %d\n", datos_jugador->tiempo);
     
     // 4)
-    printf("\n======= TU INVENTARIO =======\n");
+    printf("\n==== TU INVENTARIO ====n");
     if (list_first(datos_jugador->inventario) == NULL) {
         printf("Inventario vacío.\n");
     } else {
@@ -257,7 +259,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     }
     
     // 5) 
-    printf("\n======= Direccion(es) disponible(s) =======\n");
+    printf("\n==== DIRECCION(ES) DISPONIBLE(S) ====n");
     if (actual->arriba != NULL) printf("1) Arriba\n");
     if (actual->abajo != NULL) printf("2) Abajo\n");
     if (actual->izquierda != NULL) printf("3) Izquierda\n");
@@ -299,7 +301,7 @@ void recoger_items(Jugador* datos_jugador) {
 
     //falta agregar items y ver si lo agrego a mi inventario debo eliminarlo del "juego"
     //preguntar al jugador
-    printf("\nIngrese el nombre del Item que desea llevar, si es más de uno separar con ' ; ': \n");
+    printf("\nIngrese el nombre del Item que desea llevar, si es más de uno separar con ';': \n");
     char id_ingresadoPorJugador[100];
     getchar();
     fgets(id_ingresadoPorJugador, sizeof(id_ingresadoPorJugador), stdin);
@@ -388,10 +390,9 @@ void descartar_items(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
         }
 
         if (descartar) {
-            printf("> Descartaste: %s, Valor: %d ,Peso: %d\n", item_actual->nombre, item_actual->valor, item_actual->peso);
+            printf("> Descartaste: %s, Valor: %d, Peso: %d\n", item_actual->nombre, item_actual->valor, item_actual->peso);
             datos_jugador->totalPeso -= item_actual->peso;
             datos_jugador->totalPuntaje -= item_actual->valor;
-            //free(item_actual); // Liberar memoria del ítem descartado
             items_eliminados++;
             Juego* escenario_original = NULL;
             for (int i = 0; i < mapa_juego->num_escena; i++) {
@@ -430,7 +431,7 @@ void descartar_items(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
         datos_jugador->tiempo--;
         //printf("\nSe descartaron %d ítem(s). Tiempo restante: %d\n", items_eliminados, datos_jugador->tiempo);
     } else {
-        printf("\nNo se descartó ningún ítem.\n");
+        printf("\nNo se descartó ningún item.\n");
     }
     presioneTeclaParaContinuar();
 }
@@ -445,12 +446,10 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
     if (datos_jugador->actual->abajo != NULL) printf("Abajo es: (2)\n");
     if (datos_jugador->actual->izquierda != NULL) printf("Izquierda es: (3)\n");
     if (datos_jugador->actual->derecha != NULL) printf("Derecha es: (4)\n\n");
-    printf("Seleccione el numero de la dirección a la que desea avanzar\n");
+    printf("Seleccione el numero de la dirección a la que desea avanzar:\n");
 
     char direccion;
     scanf(" %c", &direccion);
-    //int id_de_la_direccion = -1;//esto me daba error, ya no
-
     Juego* escenario_actual = datos_jugador->actual;
     Juego* siguiente = NULL;//si elige una direccion y no es null, la muestra, si no, no.
     switch(direccion) {
@@ -474,28 +473,25 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
     if(siguiente == NULL) {
         printf("\n¡No puedes avanzar en esa dirección!\n");
         return;
-    }else{
-        int total_Peso = datos_jugador->totalPeso;
-        int tiempo_Arestar = (int)ceil((total_Peso + 1) / 10.0);  // recordar que es divison decimal
-        datos_jugador->tiempo -= tiempo_Arestar;
     }
-
-    // esto actualiza la posicion nueva
-    //buscar en pinterest ideas de cque dice un juego, me estafaron :(
-    datos_jugador->actual = siguiente;
-    printf("\nHas llegado a: %s\n", siguiente->nombre);
+    
     //falta lo del tiempo
     /*- Se actualiza el escenario actual, el inventario se conserva, y se descuenta el tiempo usado según el peso total transportado:
-    
 - Si se alcanza el escenario final, se muestran los elementos del inventario y el **puntaje final.**
 - Si el **tiempo se agota**, se muestra un mensaje de derrota.*/
     // calcular el tiempo
-    
+    int total_Peso = datos_jugador->totalPeso;
+    int tiempo_Arestar = (int)ceil((total_Peso + 1) / 10.0);  // recordar que es divison decimal
+    datos_jugador->tiempo -= tiempo_Arestar;
     
     if(datos_jugador->tiempo <= 0){
-        printf("Tu tiempo se acabó, No puedes seguir avanzando, Has perdido\n");
+        printf("Tu tiempo se acabó, NO puedes seguir avanzando, Has perdido\n");
         return;
     }
+    
+    datos_jugador->actual = siguiente;//actualizar popsicion
+    printf("\nHas llegado a: %s\n", siguiente->nombre);
+
     // Revisar si se llegó al escenario final
     if (strcmp(datos_jugador->actual->es_final, "Si") == 0) {//datos_jugador->actual->es_final == 1
         printf("\n================= ¡Has llegado al escenario final! =================\n");
@@ -530,6 +526,23 @@ void reiniciar_partida(Jugador* datos_jugador,  MapaDelEsc* mapa_juego){
     int totalPuntaje; +listo
     } Jugador
     */
+   
+    //como no me dejaba regresar los items, debo buscar los id de los escenarios y de los items y si son iguales insertar el id del i
+    Item* item_actual = list_first(datos_jugador->inventario);
+    while (item_actual != NULL) {
+        for (int i = 0; i < mapa_juego->num_escena; i++) {
+            Juego* escenario = mapa_juego->escenarios[i];
+            if (escenario->id == item_actual->id_item) {
+                escenario->num_items++;
+                escenario->items = realloc(escenario->items, escenario->num_items * sizeof(Item*));
+                escenario->items[escenario->num_items - 1] = item_actual;
+                break;
+            }
+        }
+        item_actual = list_next(datos_jugador->inventario);
+    }
+
+
     datos_jugador->tiempo = 10;
     list_clean(datos_jugador->inventario);
     datos_jugador->inventario = list_create();
@@ -597,6 +610,7 @@ int main() {
                     
                     char opcion2;
                     do {
+                        limpiarPantalla();
                         mostrar_escenario_actual(datos_jugador);
                         
                         printf("\n***** MENÚ DEL JUEGO ******\n");
