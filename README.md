@@ -1,25 +1,5 @@
 # Tarea-3
 
-Compilar:
-- gcc tdas/*.c tarea3.c -Wno-unused-result -o tarea3
-
-Ejecutar:
-- ./tarea3
-
-//graphquest.csv
-
-
-3. **Compila el código**
-    - Abre el archivo principal (por ejemplo, `main.c`).
-    - Abre la terminal integrada (`Terminal > Nueva terminal`).
-    - En la terminal, compila el programa con el siguiente comando (ajusta el nombre si el archivo principal tiene otro nombre):
-        
-        ```bash
-        gcc *.c -o gestion_pacientes
-        ```
-        
-4. **Ejecuta el programa**
-
 ## Juego del laberinto:
 Descripción: Este juego consiste en recorrer un laberinto, El jugador comienza en un escenario inicial (Entrada principal) y debe avanzar hasta un escenario final de salida, tomando decisiones estratégicas sobre el camino a seguir y qué ítems recoger.
 Cada decisión de movimiento consume tiempo, y el peso total de los ítems en el inventario ralentiza al jugador. El objetivo es maximizar el puntaje obtenido por los ítems recogidos antes de que se acabe el tiempo.
@@ -47,11 +27,11 @@ graphquest.csv
 ```
 
 
-### las opciones que funcionan correctamente y las que no lo hacen indicando posibles causas:
+## las opciones que funcionan correctamente y las que no lo hacen indicando posibles causas:
 Las opiones que funcionan son las siguientes: 
 Del menú principal: (1) Cargar Laberinto desde Archivo CSV. (2) Iniciar Partida.
 
-Del menú del juego: (1) Recoger Ítem(s). (2) Descartar Ítem(s). (3) Avanzar en una Dirección. (4) Reiniciar Partida. (5) Salir.
+Del menú del juego: (1) Recoger Item(s). (2) Descartar Item(s). (3) Avanzar en una Direccion. (4) Reiniciar Partida. (5) Salir.
 
 ------OBSERVACIÓN------
 Al pasar a otra opcion debo presionar enter a veces una vez y aveces dos veces.
@@ -60,7 +40,7 @@ También implementar una biblioteca pero de las que no estaba permitida para que
 
 ## Ejemplos mostrando como interactuar con la aplicación.
 ### Para menú principal
------------------------ EJEMPLO (1) Cargar Canciones ---------------------------
+**----------------------- EJEMPLO (1) Cargar Laberinto desde Archivo CSV ---------------------------**
 ```bash
 ===== MENU PRINCIPAL =====
 1. Cargar Laberinto desde Archivo CSV
@@ -75,7 +55,7 @@ graphquest.csv
 El archivo se a cargado correctamente
 Presione una tecla para continuar...
 ```
-# ----------------------- EJEMPLO (2) Buscar por Género --------------------------- #
+**----------------------- EJEMPLO (2) Iniciar Partida ---------------------------**
 ```bash
 ===== MENU PRINCIPAL =====
 1. Cargar Laberinto desde Archivo CSV
@@ -113,7 +93,7 @@ Inventario vacio.
 Ingrese su opcion:
 ```
 ### Para menú del juego
------------------------ EJEMPLO (1) Buscar por Artista ---------------------------
+**----------------------- EJEMPLO (1) Recoger Item(s) ---------------------------**
 //después del enter
 ```bash
 ========================================
@@ -128,7 +108,7 @@ Cuchillo; Pan
 > Recogiste: Pan, Valor: 2 ,Peso: 1
 Presione una tecla para continuar...
 ```
------------------------ EJEMPLO (2) Buscar por Tempo ---------------------------
+**----------------------- EJEMPLO (2) Descartar Item(s) ---------------------------**
 //despues del enter
 ```bash
 === TU INVENTARIO ===
@@ -143,7 +123,7 @@ Cuchillo
 Presione una tecla para continuar...
 ```
 
------------------------ Ejemplo (3) Crear Lista de Reproducción ---------------------------
+**----------------------- Ejemplo (3) Avanzar en una Direccion ---------------------------**
 //después del enter
 ```bash
 Direcciones posibles desde este escenario:
@@ -154,7 +134,7 @@ Seleccione el numero de la direccion a la que desea avanzar:
 Has llegado a: Cocina
 Presione una tecla para continuar...
 ```
------------------------ Ejemplo (4) Mostrar Canciones de una Lista ---------------------------
+**----------------------- Ejemplo (4) Reiniciar Partida ---------------------------**
 ```bash
 Ingrese su opcion: 4
 //despues del enter
@@ -191,7 +171,7 @@ Inventario vacio.
 5) Salir
 Ingrese su opcion:
 ```
------------------------ Ejemplo (5) Salir ---------------------------
+**----------------------- Ejemplo (5) Salir ---------------------------**
 ```bash
 Ingrese su opcion: 5
 //despues del enter
