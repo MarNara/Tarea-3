@@ -87,7 +87,6 @@ Juego* inicializar_escenario(int id, char* nombre, char* descripcion, char* es_f
     esc->izquierda = NULL;
     esc->derecha = NULL;
     esc->es_final = strdup(es_fin);
-    //esc->vecinos = NULL;
     esc->temp_arriba = 0;
     esc->temp_abajo = 0;
     esc->temp_izquierda = 0;
@@ -115,6 +114,8 @@ void agregar_escenario(MapaDelEsc* mapa, Juego* esc) {
         mapa->inicio = esc;
     }
 }
+
+//-----------------------------------funcion para cargar el archivo-----------------------------------------------------------------
 
 //cargar los archivos y convertir el grafo en un mapa
 MapaDelEsc* cargar_archivo() {
@@ -190,7 +191,7 @@ MapaDelEsc* cargar_archivo() {
     
 }
 
-
+//-----------------------------------funciones de las opciones--------------------------------------------------------------------------
 
 //mostrar
 /*
@@ -207,8 +208,7 @@ MapaDelEsc* cargar_archivo() {
     5)Por ultimo mostrar las Acciones posibles desde este escenario: direcciones disponibles (arriba, abajo, izquierda, 
      derecha).
 }*/
-
-
+//esta función muestra el escenario actual en el que se encuentra el jugador........................................................
 void mostrar_escenario_actual(Jugador* datos_jugador) {
 
     if (datos_jugador->actual == NULL) {
@@ -351,9 +351,9 @@ void recoger_items(Jugador* datos_jugador) {
 }
 
 
-//ver si puedo regresar al item a su escenario ................................................................................................................................
+//esta función descarta uno o más items ................................................................................................................................
 void descartar_items(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
-    // Mostrar inventario
+    //mostrar inventario
     printf("\n=== TU INVENTARIO ===\n");
     if (list_first(datos_jugador->inventario) == NULL) {
         printf("Inventario vacio.\n");
@@ -443,7 +443,7 @@ void descartar_items(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
 
 
 
-//avanza en una dirccion a la otra direccion(aqui necesito los vecinos)
+//esta función avanza en una dirccion a la otra direccion (aqui necesito los vecinos de cada dirección para moverse)......................................
 void avanzar_una_direccion(Jugador* datos_jugador) {
     //mostrar las direcciones disponibles, preguntar al usuario si desea
     printf("Direcciones posibles desde este escenario:\n");
@@ -477,6 +477,7 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
 
     if(siguiente == NULL) {
         printf("\n¡No puedes avanzar en esa direccion!\n");
+        presioneTeclaParaContinuar();
         return;
     }
     
@@ -494,10 +495,10 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
         return;
     }
     
-    datos_jugador->actual = siguiente;//actualizar popsicion
+    datos_jugador->actual = siguiente;//actualizar posicion
     printf("\nHas llegado a: %s\n", siguiente->nombre);
 
-    // revisar si se llegó al escenario final
+    // revisar si llegó al escenario final
     if (strcmp(datos_jugador->actual->es_final, "Si") == 0) {
         printf("\n================= ¡Has llegado al escenario final! =================\n");
         printf("\n=== TU INVENTARIO ===\n\n");
@@ -516,18 +517,13 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
     presioneTeclaParaContinuar();
 }
 
+
+//Esta funcion se encarga de reiniciar la partida.....................................................................................
 void reiniciar_partida(Jugador* datos_jugador,  MapaDelEsc* mapa_juego){
     /*Analisis:
     Se reinicia el juego desde el escenario inicial, con inventario vacío y tiempo completo.
     si se reinicia la partida solo seria para el jugador, no el juego entero:(
     inicializar los datos de la estructura del jugador
-    typedef struct{
-    int tiempo; +listo
-    List* inventario;+listo
-    Juego* actual; +listo
-    int totalPeso; +listo
-    int totalPuntaje; +listo
-    } Jugador
     */
     //como no me dejaba regresar los items, debo buscar los id de los escenarios y de los items para regresar cada uno a su escenario original
     Item* item_actual = list_first(datos_jugador->inventario);
@@ -555,6 +551,9 @@ void reiniciar_partida(Jugador* datos_jugador,  MapaDelEsc* mapa_juego){
     presioneTeclaParaContinuar();
 }
 
+//-----------------------------------función del main---------------------------------------------------------------------------------------
+
+//aqui se muestra el menú principal y el menú del juego, permite al jugador elegir opciones
 int main() {
     int opcion;
     int archivo_cargado = 0;
@@ -666,17 +665,6 @@ int main() {
                 }
                
             }
-            /*default:
-                printf("Opción no válida. Intente nuevamente.\n");
-                return;*/
         }
     }while(1);  
 }
-
-//Compilar:
-//- gcc tdas/*.c tarea3.c -Wno-unused-result -o tarea3
-
-//Ejecutar:
-//- ./tarea3
-
-//graphquest.csv
