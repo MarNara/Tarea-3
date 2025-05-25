@@ -323,6 +323,9 @@ void recoger_items(Jugador* datos_jugador) {
             printf("No se encontró el item: '%s'\n", nombre);
             return;
         }
+        else{
+            datos_jugador->tiempo--;
+        }
 
         // agregar al inventario y actualizar el peso y valor total
         list_pushBack(datos_jugador->inventario, item_encontrado);
@@ -338,13 +341,13 @@ void recoger_items(Jugador* datos_jugador) {
         printf("> Recogiste: %s, Valor: %d ,Peso: %d\n", item_encontrado->nombre, item_encontrado->valor, item_encontrado->peso);
         nombre = list_next(nombres_items);
     }
-    datos_jugador->tiempo --;
+    
     list_clean(nombres_items);
     presioneTeclaParaContinuar();
 }
 
 //ver si puedo regresar al item a su escenario ................................................................................................................................
-void descartar_items(Jugador* datos_jugador) {
+void descartar_items(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
     // mostrar inventario
     printf("\n=== TU INVENTARIO ===\n\n");
         if (list_first(datos_jugador->inventario) == NULL) {
@@ -388,8 +391,23 @@ void descartar_items(Jugador* datos_jugador) {
             printf("> Descartaste: %s, Valor: %d ,Peso: %d\n", item_actual->nombre, item_actual->valor, item_actual->peso);
             datos_jugador->totalPeso -= item_actual->peso;
             datos_jugador->totalPuntaje -= item_actual->valor;
-            free(item_actual); // Liberar memoria del ítem descartado
+            //free(item_actual); // Liberar memoria del ítem descartado
             items_eliminados++;
+            Juego* escenario_original = NULL;
+            for (int i = 0; i < mapa_juego->num_escena; i++) {
+                if (mapa_juego->escenarios[i]->id == item_actual->id_item) {
+                    escenario_original = mapa_juego->escenarios[i];
+                    break;
+                }
+            }
+
+            if (escenario_original != NULL) {
+                // reinsertar el item en el escenario original
+                escenario_original->num_items++;
+                escenario_original->items = realloc(escenario_original->items, escenario_original->num_items * sizeof(Item*));
+                escenario_original->items[escenario_original->num_items - 1] = item_actual;
+            }
+
         } else {
             list_pushBack(lista_no_descartados, item_actual); // guardar item no descartado, los que npo coinciden
         }
@@ -406,10 +424,8 @@ void descartar_items(Jugador* datos_jugador) {
 
     // Liberar memoria
     list_clean(nombres_descartar);
-    //free(nombres_descartar);
-    //free(lista_no_descartados);
 
-    // Actualizar tiempo
+    //actualizar tiempo
     if (items_eliminados > 0) {
         datos_jugador->tiempo--;
         //printf("\nSe descartaron %d ítem(s). Tiempo restante: %d\n", items_eliminados, datos_jugador->tiempo);
@@ -458,6 +474,10 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
     if(siguiente == NULL) {
         printf("\n¡No puedes avanzar en esa dirección!\n");
         return;
+    }else{
+        int total_Peso = datos_jugador->totalPeso;
+        int tiempo_Arestar = (int)ceil((total_Peso + 1) / 10.0);  // recordar que es divison decimal
+        datos_jugador->tiempo -= tiempo_Arestar;
     }
 
     // esto actualiza la posicion nueva
@@ -470,9 +490,7 @@ void avanzar_una_direccion(Jugador* datos_jugador) {
 - Si se alcanza el escenario final, se muestran los elementos del inventario y el **puntaje final.**
 - Si el **tiempo se agota**, se muestra un mensaje de derrota.*/
     // calcular el tiempo
-    int total_Peso = datos_jugador->totalPeso;
-    int tiempo_Arestar = (int)ceil((total_Peso + 1) / 10.0);  // usa 10.0 para división decimal
-    datos_jugador->tiempo -= tiempo_Arestar;
+    
     
     if(datos_jugador->tiempo <= 0){
         printf("Tu tiempo se acabó, No puedes seguir avanzando, Has perdido\n");
@@ -602,7 +620,7 @@ int main() {
                                 
                             case '2':
                                 limpiarPantalla();
-                                descartar_items(datos_jugador);
+                                descartar_items(datos_jugador, mapa_del_juego);
                                 break;
                                 
                             case '3':
@@ -640,3 +658,11 @@ int main() {
         }
     }while(1);  
 }
+
+//Compilar:
+//- gcc tdas/*.c tarea3.c -Wno-unused-result -o tarea3
+
+//Ejecutar:
+//- ./tarea3
+
+//graphquest.csv
