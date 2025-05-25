@@ -150,7 +150,7 @@ MapaDelEsc* cargar_archivo() {
     while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
         // Crear nuevo escenario
         Juego* esc = inicializar_escenario(atoi(campos[0]), campos[1], campos[2], campos[8]);
-        printf("Escenario ID %d - es_final: %d\n", esc->id, esc->es_final);////////////////////////////////////////////////////
+        //printf("Escenario ID %d - es_final: %d\n", esc->id, esc->es_final);////////////////////////////////////////////////////
 
 
         
@@ -535,7 +535,7 @@ int main() {
         printf("\n===== MENU PRINCIPAL =====\n");
         printf("1. Cargar Laberinto desde Archivo CSV\n");
         printf("2. Iniciar Partida\n");
-        printf("0. Salir\n");
+        //printf("0. Salir\n");
         printf("Seleccione una opción: ");
         scanf("%d", &opcion);
         getchar();
@@ -605,30 +605,31 @@ int main() {
                                 
                             case '4':
                                 break;
+
+                            case '5':
+                                printf("Saliendo del juego. ¡Hasta luego!\n");
+                                //liberar memoria
+                                if(mapa_del_juego != NULL) {
+                                    free(mapa_del_juego);
+                                }
+                                return 0;
+                            default:
+                                printf("Opción no válida. Intente nuevamente.\n");
+                            presioneTeclaParaContinuar();
+                            limpiarPantalla();
                         }
-                        
-                        presioneTeclaParaContinuar();
-                        limpiarPantalla();
 
-                    } while (opcion2 != '5'); 
+
+                    } while (opcion2 != '5');  
+                    break;
                 }
-                break;
+               
             }
-            case 0:
-                printf("Saliendo del juego. ¡Hasta luego!\n");
-                break;
-            default:
+            /*default:
                 printf("Opción no válida. Intente nuevamente.\n");
+                return;*/
         }
-
-    } while (opcion != 0);
-
-    //liberar memoria
-    if(mapa_del_juego != NULL) {
-        free(mapa_del_juego);
-    }
-    
-    return 0;
+    }while(1);  
 }
 
 //gcc tdas/*.c tarea3_princi.c -Wno-unused-result -o tarea3_princi
