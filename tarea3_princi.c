@@ -104,23 +104,6 @@ MapaDelEsc* inicializar_mapa() {
     mapa->inicio = NULL;
     return mapa;
 }
-
-/*int tiempo;
-    List* inventario;
-    Juego* actual;// en el que esta el jugador
-    int totalPeso;
-    int totalPuntaje; 
-} Jugador;
-
-//inicializar jugador (si alcanzo arreglarlo bonito, acá, si no, dejar el main feo)
-Jugador* inicializar_jugador(int tiempo, Juego* actual, int totalPeso, int totalPuntaje) {
-    Jugador* jugador_naranja = (Jugador*)malloc(sizeof(Jugador));
-    jugador_naranja->tiempo = 10;
-    jugador_naranja->inventario = list_create();
-    jugador_naranja->actual = ;
-
-    return Jugador;
-}*/
  
 // Función para agregar un escenario al mapa
 void agregar_escenario(MapaDelEsc* mapa, Juego* esc) {
@@ -148,13 +131,10 @@ MapaDelEsc* cargar_archivo() {
     campos = leer_linea_csv(archivo, ','); // Lee los encabezados
 
     while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
-        // Crear nuevo escenario
+        // aqui creo un nuevo escenario
         Juego* esc = inicializar_escenario(atoi(campos[0]), campos[1], campos[2], campos[8]);
-        //printf("Escenario ID %d - es_final: %d\n", esc->id, esc->es_final);////////////////////////////////////////////////////
 
-
-        
-        // Procesar items
+        // separar los items
         List* items_list = split_string(campos[3], ";");
         esc->num_items = list_size(items_list);
         esc->items = malloc(esc->num_items * sizeof(Item*));
@@ -173,15 +153,13 @@ MapaDelEsc* cargar_archivo() {
         list_clean(items_list);
         free(items_list);
         
-        // Establecer vecinos temporales
-
-
+        // conectar vecinos temporales
         esc->temp_arriba = atoi(campos[4]);
         esc->temp_abajo = atoi(campos[5]);
         esc->temp_izquierda = atoi(campos[6]);
         esc->temp_derecha = atoi(campos[7]);
 
-        // Agregar al mapa (hacer una función para que sea menos ruido visual y me confuna menos)
+        // agregar al mapa (hacer una función para que sea menos ruido visual y me confuna menos)
         agregar_escenario(mapa, esc);
     }
     
@@ -190,20 +168,20 @@ MapaDelEsc* cargar_archivo() {
     // falta establecer vecinos entre escenarios
 
     for (int i = 0; i < mapa->num_escena; i++) {
-    Juego* actual = mapa->escenarios[i];
-    for (int j = 0; j < mapa->num_escena; j++) {
-        Juego* vecino_direccion = mapa->escenarios[j];
+        Juego* actual = mapa->escenarios[i];
+        for (int j = 0; j < mapa->num_escena; j++) {
+            Juego* vecino_direccion = mapa->escenarios[j];
 
-        if (vecino_direccion->id == actual->temp_arriba)
-            actual->arriba = vecino_direccion;
-        if (vecino_direccion->id == actual->temp_abajo)
-            actual->abajo = vecino_direccion;
-        if (vecino_direccion->id == actual->temp_izquierda)
-            actual->izquierda = vecino_direccion;
-        if (vecino_direccion->id == actual->temp_derecha)
-            actual->derecha = vecino_direccion;
+            if (vecino_direccion->id == actual->temp_arriba)
+                actual->arriba = vecino_direccion;
+            if (vecino_direccion->id == actual->temp_abajo)
+                actual->abajo = vecino_direccion;
+            if (vecino_direccion->id == actual->temp_izquierda)
+                actual->izquierda = vecino_direccion;
+            if (vecino_direccion->id == actual->temp_derecha)
+                actual->derecha = vecino_direccion;
+        }
     }
-}
     
     printf("El archivo se a cargado correctamente\n");
     presioneTeclaParaContinuar();
@@ -233,6 +211,8 @@ MapaDelEsc* cargar_archivo() {
     5)Por ultimo mostrar las Acciones posibles desde este escenario: direcciones disponibles (arriba, abajo, izquierda, 
      derecha).
 }*/
+
+
 void mostrar_escenario_actual(Jugador* datos_jugador) {
     if (datos_jugador->actual == NULL) {
         printf("No hay escenario actual asignado.\n");
@@ -285,6 +265,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     if(datos_jugador->actual->arriba == NULL && datos_jugador->actual->abajo == NULL && datos_jugador->actual->izquierda == NULL && datos_jugador->actual->derecha == NULL){
         printf("No hay direcciones disponibles para este escenario\n");
     }
+    
 }
 
 
@@ -297,7 +278,7 @@ void mostrar_escenario_actual(Jugador* datos_jugador) {
     List* items_string = split_string(campos[3], ";");, pero con especificaciones diferentes, ya que yo quiero separar el espacio:  
     split_string(id_ingresadoPorJugador, " ");*/
     
-//
+//esta función recoje los items del escenario en el que se encuentra el jugador..............................................................................................................
 void recoger_items(Jugador* datos_jugador) {
     Juego* actual = datos_jugador->actual;
     //recordar que si le coloco else puede no termin ar su ejecucion y darme error
@@ -359,8 +340,10 @@ void recoger_items(Jugador* datos_jugador) {
     }
     datos_jugador->tiempo --;
     list_clean(nombres_items);
+    presioneTeclaParaContinuar();
 }
 
+//ver si puedo regresar al item a su escenario ................................................................................................................................
 void descartar_items(Jugador* datos_jugador) {
     // mostrar inventario
     printf("\n=== TU INVENTARIO ===\n\n");
@@ -433,19 +416,20 @@ void descartar_items(Jugador* datos_jugador) {
     } else {
         printf("\nNo se descartó ningún ítem.\n");
     }
+    presioneTeclaParaContinuar();
 }
 
 
 
 //avanza en una dirccion a la otra direccion(aqui necesito los vecinos)
-void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
+void avanzar_una_direccion(Jugador* datos_jugador) {
     //mostrar las direcciones disponibles, preguntar al usuario si desea
     printf("Direcciones posibles desde este escenario:\n");
     if (datos_jugador->actual->arriba != NULL) printf("Arriba es: (1)\n");
     if (datos_jugador->actual->abajo != NULL) printf("Abajo es: (2)\n");
     if (datos_jugador->actual->izquierda != NULL) printf("Izquierda es: (3)\n");
     if (datos_jugador->actual->derecha != NULL) printf("Derecha es: (4)\n\n");
-    printf("Seleccione el numero de la dirección si desea avanzar en esa dirección\n");
+    printf("Seleccione el numero de la dirección a la que desea avanzar\n");
 
     char direccion;
     scanf(" %c", &direccion);
@@ -480,7 +464,11 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
     //buscar en pinterest ideas de cque dice un juego, me estafaron :(
     datos_jugador->actual = siguiente;
     printf("\nHas llegado a: %s\n", siguiente->nombre);
+    //falta lo del tiempo
+    /*- Se actualiza el escenario actual, el inventario se conserva, y se descuenta el tiempo usado según el peso total transportado:
     
+- Si se alcanza el escenario final, se muestran los elementos del inventario y el **puntaje final.**
+- Si el **tiempo se agota**, se muestra un mensaje de derrota.*/
     // calcular el tiempo
     int total_Peso = datos_jugador->totalPeso;
     int tiempo_Arestar = (int)ceil((total_Peso + 1) / 10.0);  // usa 10.0 para división decimal
@@ -506,13 +494,32 @@ void avanzar_una_direccion(Jugador* datos_jugador, MapaDelEsc* mapa_juego) {
         }
         return;
     }
-  
-    //falta lo del tiempo
-    /*- Se actualiza el escenario actual, el inventario se conserva, y se descuenta el tiempo usado según el peso total transportado:
-    
-- Si se alcanza el escenario final, se muestran los elementos del inventario y el **puntaje final.**
-- Si el **tiempo se agota**, se muestra un mensaje de derrota.*/
+    presioneTeclaParaContinuar();
+}
 
+void reiniciar_partida(Jugador* datos_jugador,  MapaDelEsc* mapa_juego){
+    /*Analisis:
+    Se reinicia el juego desde el escenario inicial, con inventario vacío y tiempo completo.
+
+    si se reinicia la partida solo seria para el jugador, no el juego entero:(
+    inicializar los datos de la estructura del jugador
+    
+    typedef struct{
+    int tiempo; +listo
+    List* inventario;+listo
+    Juego* actual; +listo
+    int totalPeso; +listo
+    int totalPuntaje; +listo
+    } Jugador
+    */
+    datos_jugador->tiempo = 10;
+    list_clean(datos_jugador->inventario);
+    datos_jugador->inventario = list_create();
+    datos_jugador->actual = mapa_juego->inicio;
+    datos_jugador->totalPeso = 0;
+    datos_jugador->totalPuntaje = 0;
+    printf("Has reiniciado la partida con éxito\n");
+    presioneTeclaParaContinuar();
 }
 
 int main() {
@@ -554,7 +561,7 @@ int main() {
                 
                 if(mapa_del_juego != NULL && mapa_del_juego->inicio != NULL) {
                     archivo_cargado = 1;
-                    datos_jugador->actual = mapa_del_juego->inicio;  // Asignar escenario inicial
+                    datos_jugador->actual = mapa_del_juego->inicio;  
                     printf("Mapa cargado correctamente. Escenario inicial: %s\n", mapa_del_juego->inicio->nombre);
                 } else {
                     printf("Error al cargar el mapa.\n");
@@ -600,10 +607,12 @@ int main() {
                                 
                             case '3':
                                 limpiarPantalla();
-                                avanzar_una_direccion(datos_jugador, mapa_del_juego);
+                                avanzar_una_direccion(datos_jugador);
                                 break;
                                 
                             case '4':
+                                limpiarPantalla();
+                                reiniciar_partida(datos_jugador, mapa_del_juego);
                                 break;
 
                             case '5':
