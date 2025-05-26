@@ -1,6 +1,6 @@
 # Tarea-3
 
-## Juego del laberinto:
+## Juego GraphQuest:
 Descripción: Este juego consiste en recorrer un laberinto, el jugador comienza en un escenario inicial (Entrada principal) y debe avanzar hasta un escenario final de salida, tomando decisiones estratégicas sobre el camino a seguir y qué ítems recoger.
 Cada decisión de movimiento consume tiempo, y el peso total de los ítems en el inventario ralentiza al jugador. El objetivo es maximizar el puntaje obtenido por los ítems recogidos antes de que se acabe el tiempo.
 
